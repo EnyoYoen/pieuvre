@@ -1,0 +1,8 @@
+(library
+ (name lib))
+
+(menhir
+  (flags --dump) ;  (flags --dump --trace) pour voir l'exécution de l'automate
+  (modules parser))
+
+(ocamllex lexer)
