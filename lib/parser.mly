@@ -23,8 +23,10 @@ term:
   | l1=term l2=term                                       { Application (l1, l2) }
   | v=LID                                                 { Variable v }
   | EXF LPAREN l=term COLON t=ltype RPAREN                { ExFalso (l, t) }
+  | LPAREN l=term RPAREN                                  { l }
 
 ltype:
   | b=UID                     { Base b }
   | t1=ltype ARROW t2=ltype   { Implication (t1, t2) }
   | FALSE                     { False}
+  | LPAREN t=ltype RPAREN     { t }
