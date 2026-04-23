@@ -70,5 +70,7 @@ let rec betastep (l : lam) =
     )
   )
 
-let reduce (_ : lam) = 
-  ()
+let rec reduce (l : lam) = 
+  match betastep l with
+  | Some l' -> reduce l'
+  | None -> l
