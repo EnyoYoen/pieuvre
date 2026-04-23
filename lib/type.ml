@@ -1,4 +1,4 @@
-type ltype = 
+type ty = 
   | Base of string
-  | Implication of ltype*ltype
+  | Implication of ty*ty
   | False

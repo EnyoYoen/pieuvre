@@ -4,6 +4,9 @@ open Type
 let rec print_type (t : ltype) =
   match t with
   | Base b -> print_string b
+  | Implication (t, False) -> 
+    print_string "~";
+    print_type t
   | Implication (t1, t2) -> 
     print_type t1; 
     print_string " -> ";
