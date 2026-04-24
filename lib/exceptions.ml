@@ -1,0 +1,2 @@
+exception InferError
+exception TypeError
