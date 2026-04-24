@@ -1,0 +1,1 @@
+(fun (x : A) => fun (y : A) => y x) u (fun (t:A) => t t).
