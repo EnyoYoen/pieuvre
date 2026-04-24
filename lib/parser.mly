@@ -6,7 +6,7 @@ open Term
 %token EOF
 %token LPAREN RPAREN
 %token FUN COLON DBLARROW EXF
-%token ARROW FALSE
+%token ARROW FALSE NOT
 %token <string> LID
 %token <string> UID
 

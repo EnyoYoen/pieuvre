@@ -1,7 +1,7 @@
 open Term
 open Type
 
-let rec print_type (t : ltype) =
+let rec print_type (t : ty) =
   match t with
   | Base b -> print_string b
   | Implication (t, False) -> 

@@ -1,10 +1,10 @@
 open Type
 
 type lam =
-  | Abstraction of string*ltype*lam
+  | Abstraction of string*ty*lam
   | Application of lam*lam
   | Variable of string
-  | ExFalso of lam*ltype
+  | ExFalso of lam*ty
 
 type alpha_env = (string * string) list
 
