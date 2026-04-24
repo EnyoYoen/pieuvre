@@ -23,6 +23,9 @@ rule token = parse
   | "->"            { ARROW }
   | "False"         { FALSE }
   | '~'             { NOT }
+  
+  | '&'             { AMP }
+  | '.'             { DOT }
 
   | lidentifiant as id { LID id }
   | uidentifiant as id { UID id }

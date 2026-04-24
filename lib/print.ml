@@ -34,3 +34,13 @@ let rec print_lam (l : lam) =
     print_string " : ";
     print_type t;
     print_string ")"
+
+let print_reduction_sequence (t : lam) =
+  let rec aux current =
+    print_lam current;
+    print_newline ();
+    match betastep current with
+    | Some next -> aux next
+    | None -> ()
+  in
+  aux t

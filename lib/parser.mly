@@ -7,16 +7,25 @@ open Term
 %token LPAREN RPAREN
 %token FUN COLON DBLARROW EXF
 %token ARROW FALSE NOT
+%token AMP DOT
 %token <string> LID
 %token <string> UID
 
-%start main
-%type <Term.lam> main
+%start reduce alpha typecheck
+%type <Term.lam> reduce
+%type <Term.lam * Term.lam> alpha
+%type <Term.lam * Type.ty> typecheck
                                                       
-%%
+%%                                                                            
 
-main:
-e=term EOF { e }                                                                                
+reduce:
+  e=term DOT EOF { e }
+
+alpha:
+  l1=term AMP l2=term DOT EOF { (l1, l2) }
+
+typecheck:
+  l=term COLON t=ltype DOT EOF { (l, t) }
 
 term:
   | FUN LPAREN v=LID COLON t=ltype RPAREN DBLARROW l=term { Abstraction (v, t, l) }

@@ -1,2 +1,1 @@
-exception InferError
 exception TypeError
