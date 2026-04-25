@@ -11,6 +11,9 @@ open Term
 %token <string> LID
 %token <string> UID
 
+%right ARROW
+%nonassoc NOT
+
 %start reduce alpha typecheck
 %type <Term.lam> reduce
 %type <Term.lam * Term.lam> alpha
@@ -29,14 +32,20 @@ typecheck:
 
 term:
   | FUN LPAREN v=LID COLON t=ltype RPAREN DBLARROW l=term { Abstraction (v, t, l) }
-  | l1=term l2=term                                       { Application (l1, l2) }
-  | v=LID                                                 { Variable v }
-  | EXF LPAREN l=term COLON t=ltype RPAREN                { ExFalso (l, t) }
-  | LPAREN l=term RPAREN                                  { l }
+  | l=application                                         { l }
+
+application:
+  | l=application a=atom  { Application (l, a) }
+  | a=atom                { a }
+
+atom:
+  | v=LID                                  { Variable v }
+  | EXF LPAREN l=term COLON t=ltype RPAREN { ExFalso (l, t) }
+  | LPAREN l=term RPAREN                   { l }
 
 ltype:
   | b=UID                     { Base b }
   | t1=ltype ARROW t2=ltype   { Implication (t1, t2) }
-  | NOT t=ltype               { Implication (t, False) }
+  | NOT t=ltype %prec NOT     { Implication (t, False) }
   | FALSE                     { False}
   | LPAREN t=ltype RPAREN     { t }
