@@ -1,1 +1,2 @@
 exception TypeError
+exception IncompleteProof
