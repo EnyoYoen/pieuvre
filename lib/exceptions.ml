@@ -1,2 +1,8 @@
 exception TypeError
 exception IncompleteProof
+exception ProofNotFinished
+exception NoGoal
+exception NotImplemented
+exception GoalNotFound
+exception HypothesisNotFound
+exception HypothesisMismatch
