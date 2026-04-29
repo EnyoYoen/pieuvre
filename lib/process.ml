@@ -3,6 +3,7 @@ open Proof
 open Tactic
 open Type
 open Print
+open Infer
 
 let var_counter = ref 0
 let hyp_counter = ref 0
@@ -38,7 +39,7 @@ let process_intro (sg : subgoal) (env : gam) (h : string option) =
         let varname = "x" ^ (string_of_int !var_counter) in
         var_counter := (!var_counter + 1);
         let new_proof = ref Hole in
-        proof := Abstraction (varname, t1, !new_proof);
+        proof := Abstraction (varname, t1, new_proof);
         (new_proof, t2, (hyp_name, t1) :: hyps)
       )
     )
@@ -87,11 +88,13 @@ let process_proof (tactics : tactic list) =
   | goalt :: tl -> 
     match goalt with
     | Goal goal -> (
-      let proof = Hole in
-      let subgoal = [(ref proof, goal, [])] in
+      let proof = ref Hole in
+      let subgoal = [(proof, goal, [])] in
       print_subgoal subgoal;
-      let _ = process_until_qed tl subgoal [] in 
-      ()
+      let e = process_until_qed tl subgoal [] in
+      let term = proof_to_term !proof in
+      if not (typecheck e term goal) then 
+        raise IncorrectProof
     )
     | _ -> raise NoGoal
 

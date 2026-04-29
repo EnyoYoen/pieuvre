@@ -8,3 +8,4 @@ exception HypothesisNotFound
 exception HypothesisMismatch
 exception IntroOnNonImplication
 exception HypothesisExists
+exception IncorrectProof
