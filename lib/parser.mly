@@ -9,17 +9,19 @@ open Tactic
 %token FUN COLON DBLARROW EXF
 %token ARROW FALSE NOT
 %token AMP DOT
-%token GOAL EXACT TRIVIAL INTRO INTROS APPLY CUT EXFALSO DESTRUCT ABSURD ADMIT
+%token GOAL QED SHOW PROOF
+%token EXACT TRIVIAL INTRO INTROS APPLY CUT EXFALSO DESTRUCT ABSURD ADMIT
 %token <string> LID
 %token <string> UID
 
 %right ARROW
 %nonassoc NOT
 
-%start reduce alpha typecheck tactic
+%start reduce alpha typecheck proof tactic
 %type <Term.lam> reduce
 %type <Term.lam * Term.lam> alpha
 %type <Term.lam * Type.ty> typecheck
+%type <Tactic.tactic list> proof
 %type <Tactic.tactic> tactic
                                                       
 %%                                                                            
@@ -69,3 +71,10 @@ tactic:
   | DESTRUCT DOT        { Destruct }
   | ABSURD DOT          { Absurd }
   | ADMIT DOT           { Admit }
+
+proof:
+  tl=tactic_list EOF  { tl }
+
+tactic_list:
+  | t=tactic tl=tactic_list { t :: tl }
+  |                         { [] }

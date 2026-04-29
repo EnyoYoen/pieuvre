@@ -40,6 +40,13 @@ let run () =
       ) else if !typecheck then (
         let (t, ty) = Parser.typecheck Lexer.token lexbuf in
         print_endline (string_of_bool (Infer.typecheck [] t ty))
+      ) else ( (* No options *)
+        if extension != "" then
+          let tl = Parser.proof Lexer.token lexbuf in
+          Process.process_proofs tl
+        else (
+
+        )
       )
     );
     flush stdout
