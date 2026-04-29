@@ -33,7 +33,7 @@ let run () =
       ) in
       if !reduce then (
         let t = Parser.reduce Lexer.token lexbuf in
-        Print.print_reduction_sequence t
+        Print.reduce t
       ) else if !alpha then (
         let (t1, t2) = Parser.alpha Lexer.token lexbuf in
         print_endline (string_of_bool (Term.alpha t1 t2))

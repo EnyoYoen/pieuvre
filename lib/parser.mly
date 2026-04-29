@@ -46,6 +46,6 @@ atom:
 ltype:
   | b=UID                     { Base b }
   | t1=ltype ARROW t2=ltype   { Implication (t1, t2) }
-  | NOT t=ltype %prec NOT     { Implication (t, False) }
+  | NOT t=ltype               { Implication (t, False) }
   | FALSE                     { False}
   | LPAREN t=ltype RPAREN     { t }

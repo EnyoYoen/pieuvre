@@ -14,9 +14,9 @@ let rec infer (env : gam) (l : lam) =
   | ExFalso (l, t) -> check env l False; t 
 and check (env : gam) (l : lam) (t : ty) =
   match l, t with
-  | Abstraction (v, t_arg, body), Implication (t_dom, t_cod) ->
-    if t_arg = t_dom then
-      check ((v, t_dom) :: env) body t_cod
+  | Abstraction (v, ta, b), Implication (t1, t2) ->
+    if ta = t1 then
+      check ((v, t1) :: env) b t2
     else
       raise TypeError
   | _ ->
