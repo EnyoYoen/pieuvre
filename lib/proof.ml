@@ -9,6 +9,10 @@ type proof =
   | ExFalso of proof*ty
   | Hole
 
+type hyp = (string * ty) list 
+type subgoal = proof ref * ty * hyp
+type subgoals = subgoal list
+
 let rec proof_to_term (p : proof) : lam =
   match p with
   | Abstraction (v, t, p) -> Abstraction (v, t, proof_to_term p)

@@ -1,6 +1,7 @@
 open Term
 open Type
 open Tactic
+open Proof
 
 let rec print_type (t : ty) =
   match t with
@@ -68,4 +69,26 @@ let print_tactic (t : tactic) =
   | Admit -> print_string "Admit"
 
 let print_tactics (ts : tactic list) =
-  List.iter (fun t -> print_tactic t; print_newline ()) ts
+  List.iter (fun t -> print_tactic t; print_newline ()) ts;
+  print_newline ()
+
+let print_subgoal (sgs : subgoals) =
+  match sgs with
+  | [] -> 
+    print_string "No more goals.";
+    print_newline ();
+    print_newline ()
+  | (_, goal, hyps) :: _ -> 
+    let len = List.length sgs in
+    print_string (string_of_int len ^ " goal" ^ (if len > 1 then "s" else ""));
+    print_newline ();
+    List.iter (fun (h, t) -> 
+      print_string ("  " ^ h ^ " : ");
+      print_type t;
+      print_newline ()
+    ) hyps;
+    print_string "============================";
+    print_newline ();
+    print_type goal;
+    print_newline ();
+    print_newline ()

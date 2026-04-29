@@ -2,10 +2,7 @@ open Exceptions
 open Proof
 open Tactic
 open Type
-
-type hyp = (string * ty) list 
-type subgoal = proof ref * ty * hyp
-type subgoals = subgoal list
+open Print
 
 let var_counter = ref 0
 let hyp_counter = ref 0
@@ -60,19 +57,30 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
   match tactics with 
-  | [] -> ()
+  | [] -> env
   | t :: tl -> (
     match sgs with 
     | [] -> (
       match t with 
-      | Qed -> ()
-      | _ -> raise ProofNotFinished
+      | Qed -> env
+      | _ -> raise NoGoal
     )
     | sg :: sgsr -> (
       let (b, sgs', env') = (process_tactic t sg env) in 
-      if not b then process_until_qed tl (sgs' @ sgsr) env'
+      if b then
+        if sgs' <> [] then
+          raise ProofNotFinished
+        else (
+          print_subgoal sgs';
+          env'
+        )
+      else (
+        print_subgoal sgs';
+        process_until_qed tl (sgs' @ sgsr) env'
+      )
     )
   )
+  
 let process_proof (tactics : tactic list) = 
   match tactics with 
   | [] -> ()
@@ -81,9 +89,12 @@ let process_proof (tactics : tactic list) =
     | Goal goal -> (
       let proof = Hole in
       let subgoal = [(ref proof, goal, [])] in
-      process_until_qed tl subgoal []
+      print_subgoal subgoal;
+      let _ = process_until_qed tl subgoal [] in 
+      ()
     )
     | _ -> raise NoGoal
 
 let process_proofs (tl : tactic list) = 
+  print_tactics tl;
   process_proof tl (* Loop through all proofs till empty list *)
