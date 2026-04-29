@@ -8,9 +8,15 @@ let rec print_type (t : ty) =
   | Base b -> print_string b
   | Implication (t, False) -> 
     print_string "~";
-    print_type t
+    (match t with
+     | Implication _ -> print_string "("; print_type t; print_string ")"
+     | _ -> print_type t)
   | Implication (t1, t2) -> 
-    print_type t1; 
+    (
+      match t1 with
+      | Implication _ -> print_string "("; print_type t1; print_string ")"
+      | _ -> print_type t1;
+    );
     print_string " -> ";
     print_type t2
   | False -> print_string "False"
