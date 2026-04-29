@@ -8,6 +8,7 @@ type subgoal = proof ref * ty * hyp
 type subgoals = subgoal list
 
 let var_counter = ref 0
+let hyp_counter = ref 0
 
 let process_exact (sg : subgoal) (env : gam) (h : string) =
   let (proof, goal, hyps) = sg in
@@ -22,12 +23,39 @@ let process_exact (sg : subgoal) (env : gam) (h : string) =
     else
       raise HypothesisMismatch 
 
+let process_intro (sg : subgoal) (env : gam) (h : string option) =
+  let (proof, goal, hyps) = sg in
+  match goal with 
+  | Implication (t1, t2) -> 
+    let hyp_name = (
+      match h with
+      | None -> 
+        let i = !hyp_counter in 
+        hyp_counter := (!hyp_counter + 1);
+        "H" ^ (string_of_int i)
+      | Some n -> n
+    ) in (
+      match List.assoc_opt hyp_name env with 
+      | Some _ -> raise HypothesisExists 
+      | None -> (
+        let varname = "x" ^ (string_of_int !var_counter) in
+        var_counter := (!var_counter + 1);
+        let new_proof = ref Hole in
+        proof := Abstraction (varname, t1, !new_proof);
+        (new_proof, t2, (hyp_name, t1) :: hyps)
+      )
+    )
+  | _ -> raise IntroOnNonImplication
+
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Qed -> true, [], env
   | Exact h -> 
     let env' = (process_exact sg env h) in
     (false, [], env')
+  | Intro h -> 
+    let sg' = (process_intro sg env h) in
+    (false, [sg'], env)
   | _ -> raise NotImplemented
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =

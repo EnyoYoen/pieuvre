@@ -6,3 +6,5 @@ exception NotImplemented
 exception GoalNotFound
 exception HypothesisNotFound
 exception HypothesisMismatch
+exception IntroOnNonImplication
+exception HypothesisExists
