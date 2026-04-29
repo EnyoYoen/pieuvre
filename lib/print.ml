@@ -35,16 +35,15 @@ let rec print_lam (l : lam) =
     print_type t;
     print_string ")"
 
-let print_reduction_sequence (t : lam) =
-  let max_steps = 1000 in
-  let rec aux steps current =
-    print_lam current;
+let rec reduce_aux (s : int) (t : lam) =  
+    print_lam t;
     print_newline ();
-    if steps <= 0 then
+    if s <= 0 then
       print_endline "[reduction stopped after 1000 steps: possible divergence]"
     else
-    match betastep current with
-    | Some next -> aux (steps - 1) next
+    match betastep t with
+    | Some next -> reduce_aux (s - 1) next
     | None -> ()
-  in
-  aux max_steps t
+
+let reduce (t : lam) =
+  reduce_aux 1000 t
