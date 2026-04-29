@@ -1,5 +1,6 @@
 open Term
 open Type
+open Tactic
 
 let rec print_type (t : ty) =
   match t with
@@ -47,3 +48,24 @@ let rec reduce_aux (s : int) (t : lam) =
 
 let reduce (t : lam) =
   reduce_aux 1000 t
+
+let print_tactic (t : tactic) =
+  match t with 
+  | Goal t -> 
+    print_string "Goal: ";
+    print_type t
+  | Qed -> print_string "Qed"
+  | ShowProof -> print_string "ShowProof"
+  | Exact h -> print_string ("Exact " ^ h)
+  | Trivial -> print_string "Trivial"
+  | Intro h -> print_string ("Intro " ^ (match h with Some s -> s | None -> ""))
+  | Intros hs -> print_string ("Intros " ^ (String.concat " " hs))
+  | Apply h -> print_string ("Apply " ^ h)
+  | Cut -> print_string "Cut"
+  | ExFalso -> print_string "ExFalso"
+  | Destruct -> print_string "Destruct"
+  | Absurd -> print_string "Absurd"
+  | Admit -> print_string "Admit"
+
+let print_tactics (ts : tactic list) =
+  List.iter (fun t -> print_tactic t; print_newline ()) ts
