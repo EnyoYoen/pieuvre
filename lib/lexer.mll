@@ -27,7 +27,12 @@ rule token = parse
   | '&'             { AMP }
   | '.'             { DOT }
 
+  
   | "Goal"          { GOAL }
+  | "Qed"           { QED }
+  | "Show"          { SHOW }
+  | "Proof"         { PROOF }
+
   | "exact"         { EXACT }
   | "trivial"       { TRIVIAL }
   | "intro"         { INTRO }

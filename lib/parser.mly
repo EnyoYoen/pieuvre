@@ -55,6 +55,9 @@ ltype:
 
 tactic:
   | GOAL t=ltype DOT    { Goal t }
+  | QED DOT             { Qed }
+  | SHOW PROOF DOT      { ShowProof }
+
   | EXACT h=UID DOT     { Exact h }
   | TRIVIAL DOT         { Trivial }
   | INTRO h=UID DOT     { Intro (Some h) }
