@@ -27,6 +27,18 @@ rule token = parse
   | '&'             { AMP }
   | '.'             { DOT }
 
+  | "Goal"          { GOAL }
+  | "exact"         { EXACT }
+  | "trivial"       { TRIVIAL }
+  | "intro"         { INTRO }
+  | "intros"        { INTROS }
+  | "apply"         { APPLY }
+  | "cut"           { CUT }
+  | "exfalso"       { EXFALSO }
+  | "destruct"      { DESTRUCT }
+  | "absurd"        { ABSURD }
+  | "admit"         { ADMIT }
+
   | lidentifiant as id { LID id }
   | uidentifiant as id { UID id }
   

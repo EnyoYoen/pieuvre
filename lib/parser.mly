@@ -1,6 +1,7 @@
 %{
 open Type
 open Term
+open Tactic
 %}
 
 %token EOF
@@ -8,16 +9,18 @@ open Term
 %token FUN COLON DBLARROW EXF
 %token ARROW FALSE NOT
 %token AMP DOT
+%token GOAL EXACT TRIVIAL INTRO INTROS APPLY CUT EXFALSO DESTRUCT ABSURD ADMIT
 %token <string> LID
 %token <string> UID
 
 %right ARROW
 %nonassoc NOT
 
-%start reduce alpha typecheck
+%start reduce alpha typecheck tactic
 %type <Term.lam> reduce
 %type <Term.lam * Term.lam> alpha
 %type <Term.lam * Type.ty> typecheck
+%type <Tactic.tactic> tactic
                                                       
 %%                                                                            
 
@@ -49,3 +52,17 @@ ltype:
   | NOT t=ltype               { Implication (t, False) }
   | FALSE                     { False}
   | LPAREN t=ltype RPAREN     { t }
+
+tactic:
+  | GOAL t=ltype DOT    { Goal t }
+  | EXACT h=UID DOT     { Exact h }
+  | TRIVIAL DOT         { Trivial }
+  | INTRO h=UID DOT     { Intro (Some h) }
+  | INTRO DOT           { Intro None }
+  | INTROS hl=UID* DOT  { Intros hl }
+  | APPLY h=UID DOT     { Apply h }
+  | CUT DOT             { Cut }
+  | EXFALSO DOT         { ExFalso }
+  | DESTRUCT DOT        { Destruct }
+  | ABSURD DOT          { Absurd }
+  | ADMIT DOT           { Admit }
