@@ -9,3 +9,5 @@ exception HypothesisMismatch
 exception IntroOnNonImplication
 exception HypothesisExists
 exception IncorrectProof
+exception HypothesisNotImplication
+exception ApplyGoalMismatch
