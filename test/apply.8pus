@@ -1,0 +1,8 @@
+Goal A -> B -> (A -> B -> A) -> A.
+intro H.
+intro H0.
+intro H1.
+apply H1.
+exact H.
+exact H0.
+Qed.

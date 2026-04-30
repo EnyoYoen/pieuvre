@@ -1,0 +1,4 @@
+Goal A -> A.
+intro H.
+exact H.
+Qed.
