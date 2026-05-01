@@ -18,16 +18,12 @@ let process_exact (sg : subgoal) (h : string) =
     ) else
       raise HypothesisMismatch 
 
-let process_trivial (sg : subgoal) (env : gam) (h : string) =
+let process_trivial (sg : subgoal) =
   let (proof, goal, hyps) = sg in
-  match List.assoc_opt h hyps with 
+  match List.find_opt (fun (_, (ty, _)) -> ty = goal) hyps with
   | None -> raise HypothesisNotFound
-  | Some (ty, vn) -> 
-    if ty = goal then (
-      proof := (Variable vn);
-      (vn, goal) :: env
-    ) else
-      raise HypothesisMismatch 
+  | Some (_, (_, vn)) ->
+    proof := Variable vn
 
 let process_intro (sg : subgoal) (env : gam) (h : string option) =
   let (proof, goal, hyps) = sg in
@@ -88,6 +84,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
     process_exact sg h;
+    (false, [], env)
+  | Trivial ->
+    process_trivial sg;
     (false, [], env)
   | Intro h -> 
     let sg' = (process_intro sg env h) in
