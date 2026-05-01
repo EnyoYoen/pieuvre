@@ -9,7 +9,7 @@ type proof =
   | ExFalso of proof ref*ty
   | Hole
 
-type hyp = (string * ty) list 
+type hyp = (string * (ty * string)) list 
 type subgoal = proof ref * ty * hyp
 type subgoals = subgoal list
 

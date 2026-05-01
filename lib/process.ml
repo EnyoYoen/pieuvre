@@ -12,13 +12,11 @@ let process_exact (sg : subgoal) (env : gam) (h : string) =
   let (proof, goal, hyps) = sg in
   match List.assoc_opt h hyps with 
   | None -> raise HypothesisNotFound
-  | Some ty -> 
-    if ty = goal then 
-      let varname = "x" ^ (string_of_int !var_counter) in
-      var_counter := (!var_counter + 1);
-      proof := (Variable varname);
-      (varname, goal) :: env
-    else
+  | Some (ty, vn) -> 
+    if ty = goal then (
+      proof := (Variable vn);
+      (vn, goal) :: env
+    ) else
       raise HypothesisMismatch 
 
 let process_intro (sg : subgoal) (env : gam) (h : string option) =
@@ -40,41 +38,41 @@ let process_intro (sg : subgoal) (env : gam) (h : string option) =
         var_counter := (!var_counter + 1);
         let new_proof = ref Hole in
         proof := Abstraction (varname, t1, new_proof);
-        (new_proof, t2, (hyp_name, t1) :: hyps)
+        (new_proof, t2, (hyp_name, (t1, varname)) :: hyps)
       )
     )
   | _ -> raise IntroOnNonImplication
 
-let rec create_intermediate_subgoals (hyps : hyp) (env : gam) (types : ty list) (goal : ty) (proof : proof ref) =
-  match types with 
-  | [] -> raise NotImplemented
-  | [_] -> 
-    let varname = "x" ^ (string_of_int !var_counter) in
-    var_counter := (!var_counter + 1);
-    proof := (Variable varname);
-    [], (varname, goal) :: env
-  | t :: tl ->
-    let new_proof = ref Hole in
-    let next_iter_proof = ref Hole in
-    proof := Application (next_iter_proof, new_proof);
-    let sgs, env' = (create_intermediate_subgoals hyps env tl (Implication (t, goal)) next_iter_proof) in 
-    (new_proof, t, hyps) :: sgs, env'
+let create_intermediate_subgoals (hyps : hyp) (vn : string) (args : ty list) (proof : proof ref) =
+  let arg_refs = List.map (fun _ -> ref Hole) args in
+  let root = ref (Variable vn) in
+  let final_root = List.fold_left (fun acc_ref arg_ref ->
+    let new_root = ref Hole in
+    new_root := Application (acc_ref, arg_ref);
+    new_root
+  ) root arg_refs in
+  proof := !final_root;
+  List.map2 (fun r t -> (r, t, hyps)) arg_refs args
 
 let rec build_type_list (goal : ty) = 
   match goal with
   | Implication (t1, t2) -> t1 :: (build_type_list t2)
   | _ -> [goal]
 
-let process_apply (sg : subgoal) (env : gam) (h : string) =
-  let (proof, _, hyps) = sg in
+let process_apply (sg : subgoal) (h : string) =
+  let (proof, goal, hyps) = sg in
   match List.assoc_opt h hyps with 
   | None -> raise HypothesisNotFound
-  | Some ty ->
-    let types = (build_type_list ty) in 
-    match types with 
+  | Some (ty, vn) ->
+    let types = List.rev (build_type_list ty) in
+    match rev_types with
     | [] -> raise HypothesisNotImplication
-    | [_] -> raise HypothesisNotImplication  
-    | t :: _ -> create_intermediate_subgoals hyps env types t proof  
+    | [_] -> raise HypothesisNotImplication
+    | t :: tl ->
+      if t <> goal then
+        raise HypothesisMismatch
+      else
+        create_intermediate_subgoals hyps vn (List.rev tl) proof
 
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
@@ -85,8 +83,8 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     let sg' = (process_intro sg env h) in
     (false, [sg'], env)
   | Apply h -> 
-    let sgs, env' = (process_apply sg env h) in
-    (false, sgs, env')
+    let sgs = (process_apply sg h) in
+    (false, sgs, env)
   | _ -> raise NotImplemented
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =

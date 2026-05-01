@@ -88,7 +88,7 @@ let print_subgoal (sgs : subgoals) =
     let len = List.length sgs in
     print_string (string_of_int len ^ " goal" ^ (if len > 1 then "s" else ""));
     print_newline ();
-    List.iter (fun (h, t) -> 
+    List.iter (fun (h, (t, _)) -> 
       print_string ("  " ^ h ^ " : ");
       print_type t;
       print_newline ()
