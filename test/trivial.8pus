@@ -1,0 +1,6 @@
+Goal A -> B -> C -> A.
+intro H0.
+intro H1.
+intro H2.
+trivial.
+Qed.
