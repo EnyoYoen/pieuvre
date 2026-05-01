@@ -25,6 +25,9 @@ let process_trivial (sg : subgoal) =
   | Some (_, (_, vn)) ->
     proof := Variable vn
 
+let hypothesis_name_exists hyp_name env hyps =
+  List.mem_assoc hyp_name env || List.mem_assoc hyp_name hyps
+
 let process_intro (sg : subgoal) (env : gam) (h : string option) =
   let (proof, goal, hyps) = sg in
   match goal with 
@@ -37,9 +40,9 @@ let process_intro (sg : subgoal) (env : gam) (h : string option) =
         "H" ^ (string_of_int i)
       | Some n -> n
     ) in (
-      match List.assoc_opt hyp_name env with 
-      | Some _ -> raise HypothesisExists 
-      | None -> (
+      if hypothesis_name_exists hyp_name env hyps then
+        raise HypothesisExists
+      else (
         let varname = "x" ^ (string_of_int !var_counter) in
         var_counter := (!var_counter + 1);
         let new_proof = ref Hole in
@@ -48,6 +51,22 @@ let process_intro (sg : subgoal) (env : gam) (h : string option) =
       )
     )
   | _ -> raise IntroOnNonImplication
+
+let rec validate_intros goal env hyps seen_names = function
+  | [] -> ()
+  | h :: tl ->
+    if List.mem h seen_names || hypothesis_name_exists h env hyps then
+      raise HypothesisExists
+    else
+      match goal with
+      | Implication (_, next_goal) ->
+        validate_intros next_goal env hyps (h :: seen_names) tl
+      | _ -> raise IntroOnNonImplication
+  
+let process_intros (sg : subgoal) (env : gam) (hs : string list) =
+  let (_, goal, hyps) = sg in
+  validate_intros goal env hyps [] hs;
+  List.fold_left (fun sg h -> process_intro sg env (Some h)) sg hs
 
 let create_intermediate_subgoals (hyps : hyp) (vn : string) (args : ty list) (proof : proof ref) =
   let arg_refs = List.map (fun _ -> ref Hole) args in
@@ -90,6 +109,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     (false, [], env)
   | Intro h -> 
     let sg' = (process_intro sg env h) in
+    (false, [sg'], env)
+  | Intros hs -> 
+    let sg' = (process_intros sg env hs) in
     (false, [sg'], env)
   | Apply h -> 
     let sgs = (process_apply sg h) in
