@@ -8,7 +8,17 @@ open Infer
 let var_counter = ref 0
 let hyp_counter = ref 0
 
-let process_exact (sg : subgoal) (env : gam) (h : string) =
+let process_exact (sg : subgoal) (h : string) =
+  let (proof, goal, hyps) = sg in
+  match List.assoc_opt h hyps with 
+  | None -> raise HypothesisNotFound
+  | Some (ty, vn) -> 
+    if ty = goal then (
+      proof := (Variable vn)
+    ) else
+      raise HypothesisMismatch 
+
+let process_trivial (sg : subgoal) (env : gam) (h : string) =
   let (proof, goal, hyps) = sg in
   match List.assoc_opt h hyps with 
   | None -> raise HypothesisNotFound
@@ -65,7 +75,7 @@ let process_apply (sg : subgoal) (h : string) =
   | None -> raise HypothesisNotFound
   | Some (ty, vn) ->
     let types = List.rev (build_type_list ty) in
-    match rev_types with
+    match types with
     | [] -> raise HypothesisNotImplication
     | [_] -> raise HypothesisNotImplication
     | t :: tl ->
@@ -77,8 +87,8 @@ let process_apply (sg : subgoal) (h : string) =
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
-    let env' = (process_exact sg env h) in
-    (false, [], env')
+    process_exact sg h;
+    (false, [], env)
   | Intro h -> 
     let sg' = (process_intro sg env h) in
     (false, [sg'], env)
