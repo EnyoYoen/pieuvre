@@ -106,6 +106,12 @@ let process_cut (sg : subgoal) (t : ty) =
   proof := Application (proof_cut, proof_impl);
   [(proof_cut, Implication (t, goal), hyps); (proof_impl, t, hyps)]
 
+let process_exfalso (sg : subgoal) =
+  let (proof, goal, hyps) = sg in
+  let proof_exfalso = ref Hole in
+  proof := ExFalso (proof_exfalso, goal);
+  [(proof_exfalso, False, hyps)]
+
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
@@ -125,6 +131,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     (false, sgs, env)
   | Cut t ->
     let sgs = (process_cut sg t) in
+    (false, sgs, env)
+  | ExFalso ->
+    let sgs = (process_exfalso sg) in
     (false, sgs, env)
   | _ -> raise NotImplemented
 
