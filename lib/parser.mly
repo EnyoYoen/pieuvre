@@ -69,7 +69,7 @@ tactic:
   | CUT t=ltype DOT     { Cut t }
   | EXFALSO DOT         { ExFalso }
   | DESTRUCT DOT        { Destruct }
-  | ABSURD DOT          { Absurd }
+  | ABSURD t=ltype DOT  { Absurd t }
   | ADMIT DOT           { Admit }
 
 proof:

@@ -71,7 +71,7 @@ let print_tactic (t : tactic) =
   | Cut t -> print_string "Cut "; print_type t
   | ExFalso -> print_string "ExFalso"
   | Destruct -> print_string "Destruct"
-  | Absurd -> print_string "Absurd"
+  | Absurd t -> print_string "Absurd "; print_type t
   | Admit -> print_string "Admit"
 
 let print_tactics (ts : tactic list) =

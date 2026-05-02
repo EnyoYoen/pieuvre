@@ -118,6 +118,16 @@ let process_destruct (sg : subgoal) =
   proof := ExFalso (proof_destruct, goal);
   [(proof_destruct, False, hyps)]
 
+let process_absurd (sg : subgoal) (env : gam) (t : ty) =
+  let (proof, goal, hyps) = sg in
+  let proof_prop = ref Hole in
+  let proof_neg_prop = ref Hole in
+  let varname = "x" ^ (string_of_int !var_counter) in
+  var_counter := (!var_counter + 1);
+  proof := ExFalso(ref (Application (ref (Application (ref (Variable varname), proof_prop)), proof_neg_prop)), goal);
+  let not_t = Implication (t, False) in
+  [(proof_prop, t, hyps); (proof_neg_prop, not_t, hyps)], (varname, Implication (t, Implication (not_t, False))) :: env
+
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
@@ -144,6 +154,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   | Destruct ->
     let sgs = (process_destruct sg) in
     (false, sgs, env)
+  | Absurd t ->
+    let (sgs, env') = process_absurd sg env t in
+    (false, sgs, env')
   | _ -> raise NotImplemented
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
