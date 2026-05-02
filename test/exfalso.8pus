@@ -1,0 +1,5 @@
+Goal False -> A.
+intro H.
+exfalso.
+trivial.
+Qed.
