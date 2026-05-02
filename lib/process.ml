@@ -128,6 +128,10 @@ let process_absurd (sg : subgoal) (env : gam) (t : ty) =
   let not_t = Implication (t, False) in
   [(proof_prop, t, hyps); (proof_neg_prop, not_t, hyps)], (varname, Implication (t, Implication (not_t, False))) :: env
 
+let process_admit (sg : subgoal) =
+  let (proof, _, _) = sg in
+  proof := Admit
+
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
@@ -157,6 +161,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   | Absurd t ->
     let (sgs, env') = process_absurd sg env t in
     (false, sgs, env')
+  | Admit ->
+    process_admit sg;
+    (false, [], env)
   | _ -> raise NotImplemented
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =

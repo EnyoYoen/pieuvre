@@ -5,6 +5,7 @@ type lam =
   | Application of lam*lam
   | Variable of string
   | ExFalso of lam*ty
+  | Admit
 
 type alpha_env = (string * string) list
 
@@ -42,10 +43,12 @@ let rec subst (l : lam) (v : string) (s : lam) =
     if var = v then s else Variable var
   | ExFalso (l', ty) ->
     ExFalso (subst l' v s, ty)
+  | Admit -> Admit
 
 let rec betastep (l : lam) =
   match l with
   | Variable _ -> None
+  | Admit -> None
   | Abstraction (p, t, b) -> (
     match betastep b with
     | None -> None

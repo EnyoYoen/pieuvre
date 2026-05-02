@@ -42,6 +42,7 @@ let rec print_lam (l : lam) =
     print_string " : ";
     print_type t;
     print_string ")"
+  | Admit -> print_string "admit"
 
 let rec reduce_aux (s : int) (t : lam) =  
     print_lam t;

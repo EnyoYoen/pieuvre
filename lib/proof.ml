@@ -7,6 +7,7 @@ type proof =
   | Application of proof ref*proof ref
   | Variable of string
   | ExFalso of proof ref*ty
+  | Admit
   | Hole
 
 type hyp = (string * (ty * string)) list 
@@ -19,4 +20,5 @@ let rec proof_to_term (p : proof) : lam =
   | Application (p1, p2) -> Application (proof_to_term !p1, proof_to_term !p2)
   | Variable v -> Variable v
   | ExFalso (p, t) -> ExFalso (proof_to_term !p, t)
+  | Admit -> Admit
   | Hole -> raise IncompleteProof
