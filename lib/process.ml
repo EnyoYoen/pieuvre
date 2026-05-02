@@ -99,6 +99,13 @@ let process_apply (sg : subgoal) (h : string) =
       else
         create_intermediate_subgoals hyps vn (List.rev tl) proof
 
+let process_cut (sg : subgoal) (t : ty) =
+  let (proof, goal, hyps) = sg in
+  let proof_cut = ref Hole in
+  let proof_impl = ref Hole in
+  proof := Application (proof_cut, proof_impl);
+  [(proof_cut, Implication (t, goal), hyps); (proof_impl, t, hyps)]
+
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
@@ -115,6 +122,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     (false, [sg'], env)
   | Apply h -> 
     let sgs = (process_apply sg h) in
+    (false, sgs, env)
+  | Cut t ->
+    let sgs = (process_cut sg t) in
     (false, sgs, env)
   | _ -> raise NotImplemented
 

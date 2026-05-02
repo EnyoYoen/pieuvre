@@ -68,7 +68,7 @@ let print_tactic (t : tactic) =
   | Intro h -> print_string ("Intro " ^ (match h with Some s -> s | None -> ""))
   | Intros hs -> print_string ("Intros " ^ (String.concat " " hs))
   | Apply h -> print_string ("Apply " ^ h)
-  | Cut -> print_string "Cut"
+  | Cut t -> print_string "Cut "; print_type t
   | ExFalso -> print_string "ExFalso"
   | Destruct -> print_string "Destruct"
   | Absurd -> print_string "Absurd"

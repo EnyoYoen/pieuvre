@@ -66,7 +66,7 @@ tactic:
   | INTRO DOT           { Intro None }
   | INTROS hl=UID* DOT  { Intros hl }
   | APPLY h=UID DOT     { Apply h }
-  | CUT DOT             { Cut }
+  | CUT t=ltype DOT     { Cut t }
   | EXFALSO DOT         { ExFalso }
   | DESTRUCT DOT        { Destruct }
   | ABSURD DOT          { Absurd }

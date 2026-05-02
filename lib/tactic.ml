@@ -10,8 +10,8 @@ type tactic =
   | Intro of string option
   | Intros of string list
   | Apply of string
+  | Cut of ty
 (* TODO: search the arguments of the constructors *) 
-  | Cut
   | ExFalso
   | Destruct
   | Absurd
