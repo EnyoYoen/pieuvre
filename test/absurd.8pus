@@ -1,0 +1,6 @@
+Goal A -> ~A -> B.
+intros H0 H1.
+absurd A.
+exact H0.
+exact H1.
+Qed.
