@@ -1,0 +1,6 @@
+Goal A -> ~(~A).
+intros HA HNA.
+absurd A.
+exact HA.
+exact HNA.
+Qed.

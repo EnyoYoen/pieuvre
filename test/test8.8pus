@@ -1,0 +1,7 @@
+Goal (A -> B) -> ~B -> ~A.
+intros H HNB HA.
+absurd B.
+apply H.
+exact HA.
+exact HNB.
+Qed.
