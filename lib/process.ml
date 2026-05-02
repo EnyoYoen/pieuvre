@@ -112,6 +112,12 @@ let process_exfalso (sg : subgoal) =
   proof := ExFalso (proof_exfalso, goal);
   [(proof_exfalso, False, hyps)]
 
+let process_destruct (sg : subgoal) =
+  let (proof, goal, hyps) = sg in
+  let proof_destruct = ref Hole in
+  proof := ExFalso (proof_destruct, goal);
+  [(proof_destruct, False, hyps)]
+
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
@@ -134,6 +140,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     (false, sgs, env)
   | ExFalso ->
     let sgs = (process_exfalso sg) in
+    (false, sgs, env)
+  | Destruct ->
+    let sgs = (process_destruct sg) in
     (false, sgs, env)
   | _ -> raise NotImplemented
 
