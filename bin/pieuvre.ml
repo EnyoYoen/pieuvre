@@ -23,7 +23,7 @@ let run () =
     let is_8pus = (extension = ".8pus") in
     let flag_set = !reduce || !alpha || !typecheck in 
 
-    if (flag_set && not is_lam) || (not flag_set && extension != "" && not is_8pus) then (
+    if (flag_set && not is_lam) || (not flag_set && not (extension = "") && not is_8pus) then (
         Printf.printf "Invalid file extension\n"
     ) else (
       let lexbuf = (
@@ -41,12 +41,11 @@ let run () =
         let (t, ty) = Parser.typecheck Lexer.token lexbuf in
         print_endline (string_of_bool (Infer.typecheck [] t ty))
       ) else ( (* No options *)
-        if extension != "" then
+        if not (extension = "") then
           let tl = Parser.proof Lexer.token lexbuf in
           Process.process_proofs tl
-        else (
-
-        )
+        else
+          Interactive.run_interactive lexbuf
       )
     );
     flush stdout

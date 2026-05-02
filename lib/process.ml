@@ -1,4 +1,5 @@
 open Exceptions
+open Term
 open Proof
 open Tactic
 open Type
@@ -164,6 +165,8 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   | Admit ->
     process_admit sg;
     (false, [], env)
+  | ShowProof ->
+    (false, [], env) (* TODO *)
   | _ -> raise NotImplemented
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
@@ -213,3 +216,50 @@ let process_proof (tactics : tactic list) =
 let process_proofs (tl : tactic list) = 
   print_tactics tl;
   process_proof tl (* Loop through all proofs till empty list *)
+
+
+  
+type interactive_session = proof ref option * subgoals * gam * ty option
+
+type interactive_step =
+  | StepContinue of interactive_session * subgoals option
+  | StepFinished of lam
+  | StepError of string
+
+let process_interactive_tactic (session : interactive_session) (t : tactic) : interactive_step =
+  let (proof, sgs, env, goal) = session in
+  try
+    match t with
+    | Goal g ->
+      (match proof with
+       | Some _ -> StepError "A goal is already active."
+       | None ->
+         let new_proof = ref Hole in
+         let new_sgs = [(new_proof, g, [])] in
+         StepContinue ((Some new_proof, new_sgs, env, Some g), Some sgs))
+    | Qed ->
+      (match proof with
+       | None -> StepError "No proof in progress."
+       | Some proof ->
+         if sgs <> [] then
+           StepError "Proof not finished."
+         else
+           let term = proof_to_term !proof in
+           match goal with
+           | None -> StepError "No goal."
+           | Some goal ->
+             if Infer.typecheck env term goal then
+               StepFinished term
+             else
+               StepError "Typecheck of the final term failed: pieuvre bug."
+      )
+    | ShowProof -> StepContinue (session, None)
+    | _ ->
+      (match sgs with
+       | [] -> StepError "No goal. Start with 'Goal <goal>.' ."
+       | sg :: r ->
+         let (_, new_sgs, new_env) = process_tactic t sg env in
+         let remaining = new_sgs @ r in
+         StepContinue ((proof, remaining, new_env, goal), Some remaining))
+  with e ->
+    StepError (Printexc.to_string e)
