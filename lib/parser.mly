@@ -7,7 +7,7 @@ open Tactic
 %token EOF
 %token LPAREN RPAREN
 %token FUN COLON DBLARROW EXF
-%token ARROW FALSE NOT
+%token ARROW FALSE NOT TRUE CONJ DISJ
 %token AMP DOT
 %token GOAL QED SHOW PROOF
 %token EXACT TRIVIAL INTRO INTROS APPLY CUT EXFALSO DESTRUCT ABSURD ADMIT
@@ -52,7 +52,10 @@ ltype:
   | b=UID                     { Base b }
   | t1=ltype ARROW t2=ltype   { Implication (t1, t2) }
   | NOT t=ltype               { Implication (t, False) }
-  | FALSE                     { False}
+  | FALSE                     { False }
+  | TRUE                      { True }
+  | t1=ltype CONJ t2=ltype    { Conjunction (t1, t2) }
+  | t1=ltype DISJ t2=ltype    { Disjunction (t1, t2) }
   | LPAREN t=ltype RPAREN     { t }
 
 tactic:

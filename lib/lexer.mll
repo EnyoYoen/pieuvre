@@ -23,6 +23,9 @@ rule token = parse
   | "->"            { ARROW }
   | "False"         { FALSE }
   | '~'             { NOT }
+  | "I"             { TRUE }
+  | "/\\"           { CONJ }
+  | "\\/"           { DISJ }
   
   | '&'             { AMP }
   | '.'             { DOT }
