@@ -2,6 +2,7 @@ open Term
 open Type
 open Tactic
 open Proof
+open Exceptions
 
 let rec print_type (t : ty) =
   match t with
@@ -20,7 +21,7 @@ let rec print_type (t : ty) =
     print_string " -> ";
     print_type t2
   | False -> print_string "False"
-
+  | _ -> raise NotImplemented
 let rec print_lam (l : lam) =
   match l with
   | Abstraction (v, t, l') -> 
@@ -43,6 +44,7 @@ let rec print_lam (l : lam) =
     print_type t;
     print_string ")"
   | Admit -> print_string "admit"
+  | _ -> raise NotImplemented
 
 let rec reduce_aux (s : int) (t : lam) =  
     print_lam t;

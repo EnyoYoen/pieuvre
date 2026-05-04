@@ -6,7 +6,7 @@ open Tactic
 
 %token EOF
 %token LPAREN RPAREN
-%token FUN COLON DBLARROW EXF
+%token FUN COLON DBLARROW EXF FST SND IG ID COMMA CASE LTRUE
 %token ARROW FALSE NOT TRUE CONJ DISJ
 %token AMP DOT
 %token GOAL QED SHOW PROOF
@@ -35,6 +35,7 @@ alpha:
 typecheck:
   l=term COLON t=ltype DOT EOF { (l, t) }
 
+
 term:
   | FUN LPAREN v=LID COLON t=ltype RPAREN DBLARROW l=term { Abstraction (v, t, l) }
   | l=application                                         { l }
@@ -44,10 +45,19 @@ application:
   | a=atom                { a }
 
 atom:
-  | v=LID                                  { Variable v }
-  | EXF LPAREN l=term COLON t=ltype RPAREN { ExFalso (l, t) }
-  | LPAREN l=term RPAREN                   { l }
+  | LTRUE                                                 { True }
+  | v=LID                                                 { Variable v }
+  | EXF LPAREN l=term COLON t=ltype RPAREN                { ExFalso (l, t) }
+  | LPAREN l1=term COMMA l2=term RPAREN                   { Uple (l1, l2) }
+  | FST LPAREN l=term RPAREN                              { First l }
+  | SND LPAREN l=term RPAREN                              { Second l }
+  | IG LPAREN l=term COMMA t=ltype RPAREN                 { Left (l, t) }
+  | ID LPAREN l=term COMMA t=ltype RPAREN                 { Right (l, t) }
+  | CASE LPAREN m=term COMMA n1=term COMMA n2=term RPAREN { Case (m, n1, n2) }
+  | LPAREN l=term RPAREN                                  { l }
 
+
+(* TODO: fix conflicts *)
 ltype:
   | b=UID                     { Base b }
   | t1=ltype ARROW t2=ltype   { Implication (t1, t2) }

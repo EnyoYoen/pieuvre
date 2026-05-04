@@ -13,6 +13,7 @@ let rec infer (env : gam) (l : lam) =
   | Abstraction (v, t, l) -> Implication (t, infer ((v, t) :: env) l)
   | ExFalso (l, t) -> check env l False; t 
   | Admit -> raise TypeError
+  | _ -> raise NotImplemented
 and check (env : gam) (l : lam) (t : ty) =
   match l, t with
   | Abstraction (v, ta, b), Implication (t1, t2) ->

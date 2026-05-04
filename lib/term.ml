@@ -1,4 +1,5 @@
 open Type
+open Exceptions
 
 type lam =
   | Abstraction of string*ty*lam
@@ -6,6 +7,13 @@ type lam =
   | Variable of string
   | ExFalso of lam*ty
   | Admit
+  | True
+  | Uple of lam*lam
+  | First of lam
+  | Second of lam
+  | Left of lam*ty
+  | Right of lam*ty
+  | Case of lam*lam*lam
 
 type alpha_env = (string * string) list
 
@@ -44,6 +52,8 @@ let rec subst (l : lam) (v : string) (s : lam) =
   | ExFalso (l', ty) ->
     ExFalso (subst l' v s, ty)
   | Admit -> Admit
+  | True -> True
+  | _ -> raise NotImplemented
 
 let rec betastep (l : lam) =
   match l with
@@ -72,3 +82,4 @@ let rec betastep (l : lam) =
       )
     )
   )
+  | _ -> raise NotImplemented

@@ -19,11 +19,18 @@ rule token = parse
   | ':'             { COLON }
   | "=>"            { DBLARROW }
   | "exf"           { EXF }
+  | "fst"           { FST }
+  | "snd"           { SND }
+  | "ig"            { IG }
+  | "id"            { ID }
+  | ','             { COMMA }
+  | "case"          { CASE }
+  | "I"             { LTRUE }
 
   | "->"            { ARROW }
   | "False"         { FALSE }
   | '~'             { NOT }
-  | "I"             { TRUE }
+  | "True"          { TRUE }
   | "/\\"           { CONJ }
   | "\\/"           { DISJ }
   
