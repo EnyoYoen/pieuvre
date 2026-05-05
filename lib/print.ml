@@ -2,7 +2,6 @@ open Term
 open Type
 open Tactic
 open Proof
-open Exceptions
 
 let rec print_type (t : ty) =
   match t with
@@ -21,7 +20,20 @@ let rec print_type (t : ty) =
     print_string " -> ";
     print_type t2
   | False -> print_string "False"
-  | _ -> raise NotImplemented
+  | True -> print_string "True"
+  | Conjunction (t1, t2) ->
+    print_string "(";
+    print_type t1;
+    print_string " /\\ ";
+    print_type t2;
+    print_string ")"
+  | Disjunction (t1, t2) ->
+    print_string "(";
+    print_type t1;
+    print_string " \\/ ";
+    print_type t2;
+    print_string ")"
+
 let rec print_lam (l : lam) =
   match l with
   | Abstraction (v, t, l') -> 
@@ -44,7 +56,41 @@ let rec print_lam (l : lam) =
     print_type t;
     print_string ")"
   | Admit -> print_string "admit"
-  | _ -> raise NotImplemented
+  | True -> print_string "I"
+  | Uple (l1, l2) ->
+    print_string "(";
+    print_lam l1;
+    print_string ", ";
+    print_lam l2;
+    print_string ")"
+  | First l' ->
+    print_string "fst(";
+    print_lam l';
+    print_string ")"
+  | Second l' ->
+    print_string "snd(";
+    print_lam l';
+    print_string ")"
+  | Left (l', t) ->
+    print_string "left(";
+    print_lam l';
+    print_string " : ";
+    print_type t;
+    print_string ")"
+  | Right (l', t) ->
+    print_string "right(";
+    print_lam l';
+    print_string " : ";
+    print_type t;
+    print_string ")"
+  | Case (m, n, n') ->
+    print_string "case(";
+    print_lam m;
+    print_string ", ";
+    print_lam n;
+    print_string ", ";
+    print_lam n';
+    print_string ")"
 
 let rec reduce_aux (s : int) (t : lam) =  
     print_lam t;
