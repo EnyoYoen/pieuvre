@@ -236,7 +236,7 @@ let process_interactive_tactic (session : interactive_session) (t : tactic) : in
        | None ->
          let new_proof = ref Hole in
          let new_sgs = [(new_proof, g, [])] in
-         StepContinue ((Some new_proof, new_sgs, env, Some g), Some sgs))
+         StepContinue ((Some new_proof, new_sgs, env, Some g), Some new_sgs))
     | Qed ->
       (match proof with
        | None -> StepError "No proof in progress."
