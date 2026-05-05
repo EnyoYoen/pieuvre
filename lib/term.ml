@@ -1,5 +1,4 @@
 open Type
-open Exceptions
 
 type lam =
   | Abstraction of string*ty*lam
@@ -33,6 +32,20 @@ let rec alpha_aux (env : alpha_env) (t1 : lam) (t2 : lam) =
     alpha_aux env l1' l2'
   | Abstraction (v1, _, l1'), Abstraction (v2, _, l2') ->
     alpha_aux ((v1, v2) :: env) l1' l2'
+  | Admit, Admit -> true
+  | True, True -> true
+  | Uple (l11, l12), Uple (l21, l22) ->
+    alpha_aux env l11 l21 && alpha_aux env l12 l22
+  | First l1', First l2' ->
+    alpha_aux env l1' l2'
+  | Second l1', Second l2' ->
+    alpha_aux env l1' l2'
+  | Left (l1', _), Left (l2', _) ->
+    alpha_aux env l1' l2'
+  | Right (l1', _), Right (l2', _) ->
+    alpha_aux env l1' l2'
+  | Case (l11, l12, l13), Case (l21, l22, l23) ->
+    alpha_aux env l11 l21 && alpha_aux env l12 l22 && alpha_aux env l13 l23
   | _, _ -> false
 
 let alpha (l1 : lam) (l2 : lam) =
@@ -53,12 +66,16 @@ let rec subst (l : lam) (v : string) (s : lam) =
     ExFalso (subst l' v s, ty)
   | Admit -> Admit
   | True -> True
-  | _ -> raise NotImplemented
+  | Uple (l1, l2) -> Uple (subst l1 v s, subst l2 v s)
+  | First l' -> First (subst l' v s)
+  | Second l' -> Second (subst l' v s)
+  | Left (l', t) -> Left (subst l' v s, t)
+  | Right (l', t) -> Right (subst l' v s, t)
+  | Case (m, n, n') -> Case (subst m v s, subst n v s, subst n' v s)
 
 let rec betastep (l : lam) =
   match l with
   | Variable _ -> None
-  | Admit -> None
   | Abstraction (p, t, b) -> (
     match betastep b with
     | None -> None
@@ -82,4 +99,60 @@ let rec betastep (l : lam) =
       )
     )
   )
-  | _ -> raise NotImplemented
+  | Admit -> None
+  | True -> None
+  | Uple (l1, l2) -> (
+    match betastep l1 with
+    | Some l1' -> Some (Uple (l1', l2))
+    | None -> (
+      match betastep l2 with
+      | Some l2' -> Some (Uple (l1, l2'))
+      | None -> None
+    )
+  )
+  | First l' -> (
+    match betastep l' with
+    | None -> (
+      match l' with
+      | Uple (l1, _) -> Some l1
+      | _ -> None
+    )
+    | Some l'' -> Some (First l'')
+  )
+  | Second l' -> (
+    match betastep l' with
+    | None -> (
+      match l' with
+      | Uple (_, l2) -> Some l2
+      | _ -> None
+    )
+    | Some l'' -> Some (Second l'')
+  )
+  | Left (b, t) -> (
+    match betastep b with
+    | None -> None
+    | Some b' -> Some (Left (b', t))
+  )
+  | Right (b, t) -> (
+    match betastep b with
+    | None -> None
+    | Some b' -> Some (Right (b', t))
+  )
+  | Case (m, n1, n2) -> (
+    match betastep m with
+    | Some m' -> Some (Case (m', n1, n2))
+    | None -> (
+      match betastep n1 with
+      | Some n1' -> Some (Case (m, n1', n2))
+      | None -> (
+        match betastep n2 with
+        | Some n2' -> Some (Case (m, n1, n2'))
+        | None -> (
+          match m with
+          | Left (b, _) -> Some (Application (n1, b))
+          | Right (b, _) -> Some (Application (n2, b))
+          | _ -> None
+        )
+      )
+    )
+  )

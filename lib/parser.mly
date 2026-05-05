@@ -15,6 +15,8 @@ open Tactic
 %token <string> UID
 
 %right ARROW
+%left DISJ
+%left CONJ
 %nonassoc NOT
 
 %start reduce alpha typecheck proof tactic
