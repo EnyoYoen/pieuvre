@@ -1,0 +1,5 @@
+Goal B -> A\/B.
+intro HB.
+right.
+trivial.
+Qed.
