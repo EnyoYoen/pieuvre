@@ -1,0 +1,8 @@
+Goal A\/B -> B\/A.
+intros.
+destruct H.
+right.
+trivial.
+left.
+trivial.
+Qed.

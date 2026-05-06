@@ -1,0 +1,7 @@
+Goal A/\B -> B/\A.
+intros.
+destruct H.
+split.
+trivial.
+trivial.
+Qed.

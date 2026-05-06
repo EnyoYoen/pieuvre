@@ -1,0 +1,4 @@
+Goal False -> A.
+intros.
+destruct H.
+Qed.
