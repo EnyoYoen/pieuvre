@@ -124,6 +124,9 @@ let print_tactic (t : tactic) =
     | Destruct -> print_string "destruct"
     | Absurd t -> print_string "absurd "; print_type t
     | Admit -> print_string "admit"
+    | Split -> print_string "split"
+    | Left -> print_string "left"
+    | Right -> print_string "right"
   ); 
   print_string "."
 

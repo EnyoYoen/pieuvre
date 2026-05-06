@@ -53,6 +53,9 @@ rule token = parse
   | "destruct"      { DESTRUCT }
   | "absurd"        { ABSURD }
   | "admit"         { ADMIT }
+  | "split"         { SPLIT }
+  | "left"          { LEFT }
+  | "right"         { RIGHT }
 
   | lidentifiant as id { LID id }
   | uidentifiant as id { UID id }

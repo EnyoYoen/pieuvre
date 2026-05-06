@@ -10,7 +10,7 @@ open Tactic
 %token ARROW FALSE NOT TRUE CONJ DISJ
 %token AMP DOT
 %token GOAL QED SHOW PROOF
-%token EXACT TRIVIAL INTRO INTROS APPLY CUT EXFALSO DESTRUCT ABSURD ADMIT
+%token EXACT TRIVIAL INTRO INTROS APPLY CUT EXFALSO DESTRUCT ABSURD ADMIT SPLIT LEFT RIGHT
 %token <string> LID
 %token <string> UID
 
@@ -87,6 +87,9 @@ tactic:
   | DESTRUCT DOT        { Destruct }
   | ABSURD t=ltype DOT  { Absurd t }
   | ADMIT DOT           { Admit }
+  | SPLIT DOT           { Split }
+  | LEFT DOT            { Left }
+  | RIGHT DOT           { Right }
 
 proof:
   tl=tactic_list EOF  { tl }

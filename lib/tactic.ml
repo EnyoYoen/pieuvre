@@ -17,3 +17,6 @@ type tactic =
   | Destruct
   | Absurd of ty
   | Admit
+  | Split 
+  | Left
+  | Right

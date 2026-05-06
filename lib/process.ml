@@ -178,8 +178,7 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     (false, [], env)
   | ShowProof ->
     (false, [], env) (* TODO *)
-  | Goal _ -> (false, [], env)
-  | Qed -> (false, [], env)
+  | _ -> raise NotImplemented
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
   match tactics with 
