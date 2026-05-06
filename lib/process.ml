@@ -19,6 +19,14 @@ let process_exact (sg : subgoal) (h : string) =
     ) else
       raise HypothesisMismatch 
 
+let process_exact_term (sg : subgoal) (env : gam) (l : lam) = 
+  let (proof, goal, _) = sg in
+  let pot_proof = term_to_proof l in
+  if typecheck env l goal then
+    proof := pot_proof
+  else
+    raise TermMismatch
+
 let process_trivial (sg : subgoal) =
   let (proof, goal, hyps) = sg in
   match List.find_opt (fun (_, (ty, _)) -> ty = goal) hyps with

@@ -112,6 +112,7 @@ let print_tactic (t : tactic) =
     print_type t
   | Qed -> print_string "Qed"
   | ShowProof -> print_string "ShowProof"
+  | ExactTerm t -> print_string "Exact "; print_lam t;
   | Exact h -> print_string ("Exact " ^ h)
   | Trivial -> print_string "Trivial"
   | Intro h -> print_string ("Intro " ^ (match h with Some s -> s | None -> ""))
