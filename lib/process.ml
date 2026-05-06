@@ -17,7 +17,7 @@ let new_hyp () =
 let new_var () = 
   let i = !var_counter in
   var_counter := (!var_counter + 1);
-  "H" ^ (string_of_int i)
+  "x" ^ (string_of_int i)
 
 let process_exact (sg : subgoal) (h : string) =
   let (proof, goal, hyps) = sg in
