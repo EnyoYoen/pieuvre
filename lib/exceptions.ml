@@ -12,3 +12,5 @@ exception HypothesisExists
 exception IncorrectProof
 exception HypothesisNotImplication
 exception ApplyGoalMismatch
+exception HypothesisNotConjunction
+exception HypothesisNotDisjunction

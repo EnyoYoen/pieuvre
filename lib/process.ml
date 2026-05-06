@@ -141,6 +141,34 @@ let process_admit (sg : subgoal) =
   let (proof, _, _) = sg in
   proof := Admit
 
+let process_split (sg: subgoal) = 
+  let (proof, goal, hyps) = sg in
+  match goal with 
+  | Conjunction (t1, t2) ->
+    let proof_left = ref Hole in
+    let proof_right = ref Hole in
+    proof := Uple (proof_left, proof_right); 
+    [(proof_left, t1, hyps); (proof_right, t2, hyps)]
+  | _ -> raise HypothesisNotConjunction
+
+let process_left (sg: subgoal) =
+  let (proof, goal, hyps) = sg in
+  match goal with 
+  | Disjunction (t1, t2) ->
+    let proof_left = ref Hole in
+    proof := Left (proof_left, t2); 
+    [(proof_left, t1, hyps)]
+  | _ -> raise HypothesisNotDisjunction
+
+let process_right (sg: subgoal) =
+  let (proof, goal, hyps) = sg in
+  match goal with 
+  | Disjunction (t1, t2) ->
+    let proof_right = ref Hole in
+    proof := Right (proof_right, t1); 
+    [(proof_right, t2, hyps)]
+  | _ -> raise HypothesisNotDisjunction
+
 let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   match t with
   | Exact h -> 
@@ -171,11 +199,20 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     let sgs = (process_destruct sg) in
     (false, sgs, env)
   | Absurd t ->
-    let (sgs, env') = process_absurd sg env t in
+    let (sgs, env') = (process_absurd sg env t) in
     (false, sgs, env')
   | Admit ->
     process_admit sg;
     (false, [], env)
+  | Split -> 
+    let sgs = (process_split sg) in
+    (false, sgs, env)
+  | Left -> 
+    let sgs = (process_left sg) in
+    (false, sgs, env)
+  | Right -> 
+    let sgs = (process_right sg) in
+    (false, sgs, env)
   | ShowProof ->
     (false, [], env) (* TODO *)
   | _ -> raise NotImplemented
