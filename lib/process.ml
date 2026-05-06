@@ -146,6 +146,9 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   | Exact h -> 
     process_exact sg h;
     (false, [], env)
+  | ExactTerm l ->
+    process_exact_term sg env l;
+    (false, [], env)
   | Trivial ->
     process_trivial sg;
     (false, [], env)
@@ -175,7 +178,8 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     (false, [], env)
   | ShowProof ->
     (false, [], env) (* TODO *)
-  | _ -> raise NotImplemented
+  | Goal _ -> (false, [], env)
+  | Qed -> (false, [], env)
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
   match tactics with 

@@ -6,8 +6,8 @@ type tactic =
   | Qed
   | ShowProof
 
-  | ExactTerm of lam
   | Exact of string
+  | ExactTerm of lam
   | Trivial
   | Intro of string option
   | Intros of string list

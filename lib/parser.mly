@@ -76,6 +76,7 @@ tactic:
   | SHOW PROOF DOT      { ShowProof }
 
   | EXACT h=UID DOT     { Exact h }
+  | EXACT l=term DOT    { ExactTerm l }
   | TRIVIAL DOT         { Trivial }
   | INTRO h=UID DOT     { Intro (Some h) }
   | INTRO DOT           { Intro None }
