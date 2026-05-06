@@ -13,7 +13,33 @@ let rec infer (env : gam) (l : lam) =
   | Abstraction (v, t, l) -> Implication (t, infer ((v, t) :: env) l)
   | ExFalso (l, t) -> check env l False; t 
   | Admit -> raise TypeError
-  | _ -> raise NotImplemented
+  | True -> True
+  | Uple (l1, l2) -> Conjunction (infer env l1, infer env l2)
+  | First l' -> (
+    match infer env l' with
+    | Conjunction (t1, _) -> t1
+    | _ -> raise TypeError
+  )
+  | Second l' -> (
+    match infer env l' with
+    | Conjunction (_, t2) -> t2
+    | _ -> raise TypeError
+  )
+  | Left (l', t) -> Disjunction (infer env l', t)
+  | Right (l', t) -> Disjunction (t, infer env l')
+  | Case (m, n, n') -> (
+    match infer env m with
+    | Disjunction (t1, t2) -> (
+      match infer env n, infer env n' with
+      | Implication (t11, t12), Implication (t21, t22) ->
+        if t11 = t1 && t21 = t2 && t12 = t22 then 
+          t12
+        else
+          raise TypeError
+      | _, _ -> raise TypeError
+    )
+    | _ -> raise TypeError 
+  )
 and check (env : gam) (l : lam) (t : ty) =
   match l, t with
   | Abstraction (v, ta, b), Implication (t1, t2) ->
