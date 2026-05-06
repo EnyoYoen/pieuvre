@@ -295,7 +295,6 @@ let process_proof (tactics : tactic list) =
       print_subgoal subgoal;
       let e = process_until_qed tl subgoal [] in
       let term = proof_to_term !proof in
-        print_lam term; print_newline ();
       if typecheck e term goal then (
         print_string "Proof successful! Term: ";
         print_lam term;

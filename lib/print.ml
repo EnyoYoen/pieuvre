@@ -72,15 +72,15 @@ let rec print_lam (l : lam) =
     print_lam l';
     print_string ")"
   | Left (l', t) ->
-    print_string "left(";
+    print_string "ig(";
     print_lam l';
-    print_string " : ";
+    print_string ", ";
     print_type t;
     print_string ")"
   | Right (l', t) ->
-    print_string "right(";
+    print_string "id(";
     print_lam l';
-    print_string " : ";
+    print_string ", ";
     print_type t;
     print_string ")"
   | Case (m, n, n') ->
