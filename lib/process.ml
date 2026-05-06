@@ -140,11 +140,36 @@ let process_exfalso (sg : subgoal) =
   proof := ExFalso (proof_exfalso, goal);
   [(proof_exfalso, False, hyps)]
 
-let process_destruct (sg : subgoal) =
+let process_destruct (sg : subgoal) (h : string) =
   let (proof, goal, hyps) = sg in
-  let proof_destruct = ref Hole in
-  proof := ExFalso (proof_destruct, goal);
-  [(proof_destruct, False, hyps)]
+  match List.assoc_opt h hyps with 
+  | None -> raise HypothesisNotFound
+  | Some (t, vn) -> (
+    match t with
+    | False -> 
+      proof := ExFalso (ref (Variable vn), goal);
+      []
+    | Conjunction (t1, t2) -> 
+      let vn1 = new_var () in
+      let vn2 = new_var () in
+      let new_proof = ref Hole in
+      proof := Application( ref (Application (
+        ref (Abstraction (vn1, t1, ref (Abstraction (vn2, t2, new_proof)))), 
+        ref (First (ref (Variable vn))))), 
+        ref (Second (ref (Variable vn))));
+      let hyps = List.remove_assoc h hyps in
+      let new_hyps = (h, (t1, vn1)) :: (new_hyp (), (t2, vn2)) :: hyps in
+      [(new_proof, goal, new_hyps)]
+    | Disjunction (t1, t2) -> 
+      let vn1 = new_var () in
+      let vn2 = new_var () in
+      let left_proof = ref Hole in
+      let right_proof = ref Hole in
+      proof := Case (ref (Variable vn), ref (Abstraction (vn1, t1, left_proof)), ref (Abstraction (vn2, t2, right_proof)));
+      let hyps = List.remove_assoc h hyps in
+      [(left_proof, goal, (h, (t1, vn1)) :: hyps); (right_proof, goal, (h, (t2, vn2)) :: hyps)]
+    | _ -> raise NotDestructable
+  )
 
 let process_absurd (sg : subgoal) (env : gam) (t : ty) =
   let (proof, goal, hyps) = sg in
@@ -213,8 +238,8 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
   | ExFalso ->
     let sgs = (process_exfalso sg) in
     (false, sgs, env)
-  | Destruct ->
-    let sgs = (process_destruct sg) in
+  | Destruct h ->
+    let sgs = (process_destruct sg h) in
     (false, sgs, env)
   | Absurd t ->
     let (sgs, env') = (process_absurd sg env t) in
@@ -270,6 +295,7 @@ let process_proof (tactics : tactic list) =
       print_subgoal subgoal;
       let e = process_until_qed tl subgoal [] in
       let term = proof_to_term !proof in
+        print_lam term; print_newline ();
       if typecheck e term goal then (
         print_string "Proof successful! Term: ";
         print_lam term;
@@ -281,7 +307,7 @@ let process_proof (tactics : tactic list) =
 
 let process_proofs (tl : tactic list) = 
   print_tactics tl;
-  process_proof tl (* Loop through all proofs till empty list *)
+  process_proof tl (* TODO: Loop through all proofs till empty list *)
 
 
   

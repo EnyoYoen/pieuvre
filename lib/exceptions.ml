@@ -14,3 +14,4 @@ exception HypothesisNotImplication
 exception ApplyGoalMismatch
 exception HypothesisNotConjunction
 exception HypothesisNotDisjunction
+exception NotDestructable

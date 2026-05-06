@@ -121,7 +121,7 @@ let print_tactic (t : tactic) =
     | Apply h -> print_string ("apply " ^ h)
     | Cut t -> print_string "cut "; print_type t
     | ExFalso -> print_string "exfalso"
-    | Destruct -> print_string "destruct"
+    | Destruct h -> print_string ("destruct " ^ h)
     | Absurd t -> print_string "absurd "; print_type t
     | Admit -> print_string "admit"
     | Split -> print_string "split"

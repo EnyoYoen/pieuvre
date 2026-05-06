@@ -84,7 +84,7 @@ tactic:
   | APPLY h=UID DOT     { Apply h }
   | CUT t=ltype DOT     { Cut t }
   | EXFALSO DOT         { ExFalso }
-  | DESTRUCT DOT        { Destruct }
+  | DESTRUCT h=UID DOT  { Destruct h }
   | ABSURD t=ltype DOT  { Absurd t }
   | ADMIT DOT           { Admit }
   | SPLIT DOT           { Split }

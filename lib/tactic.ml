@@ -14,7 +14,7 @@ type tactic =
   | Apply of string
   | Cut of ty 
   | ExFalso
-  | Destruct
+  | Destruct of string
   | Absurd of ty
   | Admit
   | Split 
