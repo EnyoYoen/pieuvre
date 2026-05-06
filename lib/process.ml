@@ -72,10 +72,27 @@ let rec validate_intros goal env hyps seen_names = function
         validate_intros next_goal env hyps (h :: seen_names) tl
       | _ -> raise IntroOnNonImplication
   
+let rec deep_intro (sg: subgoal) =
+  let (proof, goal, hyps) = sg in 
+  match goal with 
+  | Implication (t1, t2) -> 
+    let i = !hyp_counter in 
+    hyp_counter := (!hyp_counter + 1);
+    let hyp_name = "H" ^ (string_of_int i) in
+    let varname = "x" ^ (string_of_int !var_counter) in
+    var_counter := (!var_counter + 1);
+    let new_proof = ref Hole in
+    proof := Abstraction (varname, t1, new_proof);
+    deep_intro (new_proof, t2, (hyp_name, (t1, varname)) :: hyps)
+  | _ -> sg
+
 let process_intros (sg : subgoal) (env : gam) (hs : string list) =
-  let (_, goal, hyps) = sg in
-  validate_intros goal env hyps [] hs;
-  List.fold_left (fun sg h -> process_intro sg env (Some h)) sg hs
+  if hs = [] then
+    deep_intro sg
+  else
+    let (_, goal, hyps) = sg in
+    validate_intros goal env hyps [] hs;
+    List.fold_left (fun sg h -> process_intro sg env (Some h)) sg hs
 
 let create_intermediate_subgoals (hyps : hyp) (vn : string) (args : ty list) (proof : proof ref) =
   let arg_refs = List.map (fun _ -> ref Hole) args in
