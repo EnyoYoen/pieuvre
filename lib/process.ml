@@ -7,7 +7,17 @@ open Print
 open Infer
 
 let var_counter = ref 0
-let hyp_counter = ref 0
+let hyp_counter = ref (-1)
+
+let new_hyp () =
+  let i = !hyp_counter in 
+  hyp_counter := (!hyp_counter + 1);
+  "H" ^ (if i = -1 then "" else (string_of_int i))
+
+let new_var () = 
+  let i = !var_counter in
+  var_counter := (!var_counter + 1);
+  "H" ^ (string_of_int i)
 
 let process_exact (sg : subgoal) (h : string) =
   let (proof, goal, hyps) = sg in
@@ -43,17 +53,13 @@ let process_intro (sg : subgoal) (env : gam) (h : string option) =
   | Implication (t1, t2) -> 
     let hyp_name = (
       match h with
-      | None -> 
-        let i = !hyp_counter in 
-        hyp_counter := (!hyp_counter + 1);
-        "H" ^ (string_of_int i)
+      | None -> new_hyp ()
       | Some n -> n
     ) in (
       if hypothesis_name_exists hyp_name env hyps then
         raise HypothesisExists
       else (
-        let varname = "x" ^ (string_of_int !var_counter) in
-        var_counter := (!var_counter + 1);
+        let varname = new_var () in 
         let new_proof = ref Hole in
         proof := Abstraction (varname, t1, new_proof);
         (new_proof, t2, (hyp_name, (t1, varname)) :: hyps)
@@ -76,14 +82,10 @@ let rec deep_intro (sg: subgoal) =
   let (proof, goal, hyps) = sg in 
   match goal with 
   | Implication (t1, t2) -> 
-    let i = !hyp_counter in 
-    hyp_counter := (!hyp_counter + 1);
-    let hyp_name = "H" ^ (string_of_int i) in
-    let varname = "x" ^ (string_of_int !var_counter) in
-    var_counter := (!var_counter + 1);
+    let varname = new_var () in
     let new_proof = ref Hole in
     proof := Abstraction (varname, t1, new_proof);
-    deep_intro (new_proof, t2, (hyp_name, (t1, varname)) :: hyps)
+    deep_intro (new_proof, t2, (new_hyp (), (t1, varname)) :: hyps)
   | _ -> sg
 
 let process_intros (sg : subgoal) (env : gam) (hs : string list) =
@@ -148,8 +150,7 @@ let process_absurd (sg : subgoal) (env : gam) (t : ty) =
   let (proof, goal, hyps) = sg in
   let proof_prop = ref Hole in
   let proof_neg_prop = ref Hole in
-  let varname = "x" ^ (string_of_int !var_counter) in
-  var_counter := (!var_counter + 1);
+  let varname = new_var () in
   proof := ExFalso(ref (Application (ref (Application (ref (Variable varname), proof_prop)), proof_neg_prop)), goal);
   let not_t = Implication (t, False) in
   [(proof_prop, t, hyps); (proof_neg_prop, not_t, hyps)], (varname, Implication (t, Implication (not_t, False))) :: env
