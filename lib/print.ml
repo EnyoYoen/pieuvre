@@ -105,24 +105,27 @@ let rec reduce_aux (s : int) (t : lam) =
 let reduce (t : lam) =
   reduce_aux 1000 t
 
-let print_tactic (t : tactic) =
-  match t with 
-  | Goal t -> 
-    print_string "Goal: ";
-    print_type t
-  | Qed -> print_string "Qed"
-  | ShowProof -> print_string "ShowProof"
-  | ExactTerm t -> print_string "Exact "; print_lam t;
-  | Exact h -> print_string ("Exact " ^ h)
-  | Trivial -> print_string "Trivial"
-  | Intro h -> print_string ("Intro " ^ (match h with Some s -> s | None -> ""))
-  | Intros hs -> print_string ("Intros " ^ (String.concat " " hs))
-  | Apply h -> print_string ("Apply " ^ h)
-  | Cut t -> print_string "Cut "; print_type t
-  | ExFalso -> print_string "ExFalso"
-  | Destruct -> print_string "Destruct"
-  | Absurd t -> print_string "Absurd "; print_type t
-  | Admit -> print_string "Admit"
+let print_tactic (t : tactic) = 
+  (
+    match t with 
+    | Goal t -> 
+      print_string "Goal: ";
+      print_type t
+    | Qed -> print_string "Qed"
+    | ShowProof -> print_string "Show Proof"
+    | ExactTerm t -> print_string "exact "; print_lam t;
+    | Exact h -> print_string ("exact " ^ h)
+    | Trivial -> print_string "trivial"
+    | Intro h -> print_string ("intro " ^ (match h with Some s -> s | None -> ""))
+    | Intros hs -> print_string ("intros " ^ (String.concat " " hs))
+    | Apply h -> print_string ("apply " ^ h)
+    | Cut t -> print_string "cut "; print_type t
+    | ExFalso -> print_string "exfalso"
+    | Destruct -> print_string "destruct"
+    | Absurd t -> print_string "absurd "; print_type t
+    | Admit -> print_string "admit"
+  ); 
+  print_string "."
 
 let print_tactics (ts : tactic list) =
   List.iter (fun t -> print_tactic t; print_newline ()) ts;
