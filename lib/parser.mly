@@ -59,7 +59,6 @@ atom:
   | LPAREN l=term RPAREN                                  { l }
 
 
-(* TODO: fix conflicts *)
 ltype:
   | b=UID                     { Base b }
   | t1=ltype ARROW t2=ltype   { Implication (t1, t2) }

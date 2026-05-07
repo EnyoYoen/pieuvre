@@ -184,6 +184,13 @@ let process_admit (sg : subgoal) =
   let (proof, _, _) = sg in
   proof := Admit
 
+let print_current_proof (proof : proof ref) =
+  (try
+     print_lam (proof_to_term !proof)
+   with IncompleteProof ->
+     print_string "Proof not finished.");
+  print_newline ()
+
 let process_split (sg: subgoal) = 
   let (proof, goal, hyps) = sg in
   match goal with 
@@ -257,17 +264,19 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
     let sgs = (process_right sg) in
     (false, sgs, env)
   | ShowProof ->
-    (false, [], env) (* TODO *)
-  | _ -> raise NotImplemented
+    let (proof, _, _) = sg in
+    print_current_proof proof;
+    (false, [], env)
+  | _ -> raise ShouldNotHappen
 
 let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
   match tactics with 
-  | [] -> env
-  | Qed :: _ -> (
+  | [] -> (env, [])
+  | Qed :: tl -> (
     if sgs <> [] then
       raise ProofNotFinished
     else
-      env
+      (env, tl)
   )
   | t :: tl -> (
     match sgs with 
@@ -286,27 +295,32 @@ let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
   
 let process_proof (tactics : tactic list) = 
   match tactics with 
-  | [] -> ()
+  | [] -> []
   | goalt :: tl -> 
     match goalt with
     | Goal goal -> (
       let proof = ref Hole in
       let subgoal = [(proof, goal, [])] in
       print_subgoal subgoal;
-      let e = process_until_qed tl subgoal [] in
+      let (e, remaining) = process_until_qed tl subgoal [] in
       let term = proof_to_term !proof in
       if typecheck e term goal then (
         print_string "Proof successful! Term: ";
         print_lam term;
         print_newline ()
       ) else
-        raise IncorrectProof
+        raise IncorrectProof;
+      remaining
     )
     | _ -> raise NoGoal
 
-let process_proofs (tl : tactic list) = 
+let rec process_proofs (tl : tactic list) = 
   print_tactics tl;
-  process_proof tl (* TODO: Loop through all proofs till empty list *)
+  match tl with
+  | [] -> ()
+  | _ ->
+    let remaining = process_proof tl in
+    process_proofs remaining
 
 
   
@@ -344,7 +358,12 @@ let process_interactive_tactic (session : interactive_session) (t : tactic) : in
              else
                StepError "Typecheck of the final term failed: pieuvre bug."
       )
-    | ShowProof -> StepContinue (session, None)
+    | ShowProof ->
+      (match proof with
+       | None -> StepError "No proof in progress."
+       | Some proof ->
+         print_current_proof proof;
+         StepContinue (session, None))
     | _ ->
       (match sgs with
        | [] -> StepError "No goal. Start with 'Goal <goal>.' ."

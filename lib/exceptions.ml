@@ -2,7 +2,7 @@ exception TypeError
 exception IncompleteProof
 exception ProofNotFinished
 exception NoGoal
-exception NotImplemented
+exception ShouldNotHappen
 exception GoalNotFound
 exception HypothesisNotFound
 exception HypothesisMismatch
