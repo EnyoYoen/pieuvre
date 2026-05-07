@@ -8,7 +8,7 @@ Pieuvre is a minimal proof assistant based on the simply typed lambda calculus, 
 - Lambda terms: abstraction, application, variables, uples, True, ExFalso, Case 
 - β-reduction (evaluation)
 - α-conversion (renaming variables)
-- Logical operators: implication (->), conjunction (/\), disjunction (\/), negation (~), True, False
+- Logical operators: implication (->), conjunction (/\\), disjunction (\\/), negation (~), True, False
 - Simple type system with base types and logical operators
 - Type checking and inference
 - Proof tactics: intro, intros, apply, exact, trivial, cut, split, left, right, destruct, absurd, exfalso, admit
