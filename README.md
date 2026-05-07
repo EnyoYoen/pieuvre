@@ -25,3 +25,48 @@ Pieuvre is a minimal proof assistant based on the simply typed lambda calculus, 
 - Proof scripts use the `.8pus` extension.
 - A single file can contain multiple proofs, each starting with `Goal ... .` and ending with `Qed.`.
 - `Show Proof.` displays the current proof term while a proof is in progress.
+
+## Examples
+
+### Conjunction commutativity
+```
+Goal A/\B -> B/\A.
+intro H.
+destruct H.
+split.
+trivial.
+trivial.
+Qed.
+```
+
+### Higher-order function application
+```
+Goal A -> B -> (A -> B -> C) -> C.
+intros HA HB H.
+apply H.
+exact HA.
+exact HB.
+Qed.
+```
+
+### Double negation introduction
+```
+Goal A -> ~(~A).
+intros HA HNA.
+absurd A.
+exact HA.
+exact HNA.
+Qed.
+```
+
+### Disjunction commutativity
+```
+Goal A\/B -> B\/A.
+intros.
+destruct H.
+right.
+trivial.
+left.
+trivial.
+Qed.
+```
