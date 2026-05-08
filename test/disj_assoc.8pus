@@ -1,0 +1,13 @@
+Goal (A \/ B) \/ C -> A \/ (B \/ C).
+intro H.
+destruct H.
+destruct H.
+left.
+exact H.
+right.
+left.
+exact H.
+right.
+right.
+exact H.
+Qed.

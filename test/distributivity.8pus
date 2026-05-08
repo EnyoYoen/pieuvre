@@ -1,0 +1,13 @@
+Goal A -> (B \/ C) -> (A /\ B) \/ (A /\ C).
+intro HA.
+intro HBC.
+destruct HBC.
+left.
+split.
+exact HA.
+exact HBC.
+right.
+split.
+exact HA.
+exact HBC.
+Qed.

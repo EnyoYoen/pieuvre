@@ -1,0 +1,10 @@
+Goal A -> B -> C -> (A /\ B) /\ C.
+intro HA.
+intro HB.
+intro HC.
+split.
+split.
+exact HA.
+exact HB.
+exact HC.
+Qed.
