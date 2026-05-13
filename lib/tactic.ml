@@ -10,7 +10,7 @@ type tactic =
   | ExactTerm of lam (* Complete the subgoal with a given term *)
   | Trivial (* Check the hypotheses to find one fitting the goal *)
   | Intro of string option (* Add an hypothesis when the goal is an Implication (introduction rule of ->) with a name, or an automatic one when none given *)
-  | Intros of string list (* Apply intro as much as possible, naming the hypotheses with the given names or automatically when running out of given names  *)
+  | Intros of string list (* Apply intro as much as possible, naming the hypotheses with the given names or automatically when running out of given names *)
   | Apply of string (* Try to use the given hypothesis (has to be an implication with the final type being the goal) and create intermediary subgoals (eliminination rule of ->)  *)
   | Cut of ty (* If the goal is B, cut A creates two subgoals: A -> B and A *)
   | ExFalso (* Try to prove False to get the goal (ex falso quodlibet) *)
