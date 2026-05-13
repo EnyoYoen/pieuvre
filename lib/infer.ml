@@ -7,7 +7,7 @@ let rec infer (env : gam) (l : lam) =
   match l with
   | Variable v -> (
     (* We search the variable in the env, can't infer if not found *)
-    match List.assoc v env with 
+    match List.assoc_opt v env with 
     | None  -> raise TypeError
     | Some t -> t)
   | Application (l1, l2) -> (
