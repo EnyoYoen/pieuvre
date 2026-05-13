@@ -2,7 +2,7 @@
  (name lib))
 
 (menhir
-  (flags --dump) ;  (flags --dump --trace) pour voir l'exécution de l'automate
-  (modules parser))
+ (flags --dump)
+ (modules parser))
 
 (ocamllex lexer)

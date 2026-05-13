@@ -1,9 +1,9 @@
-type ty = 
+type ty =
   | Base of string
-  | Implication of ty*ty
+  | Implication of ty * ty
   | False
   | True
-  | Conjunction of ty*ty
-  | Disjunction of ty*ty
+  | Conjunction of ty * ty
+  | Disjunction of ty * ty
 
 type gam = (string * ty) list
