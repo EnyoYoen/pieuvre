@@ -3,6 +3,7 @@ open Type
 open Tactic
 open Proof
 
+(* Print the type on the standard output *)
 let rec print_type (t : ty) =
   match t with
   | Base b -> print_string b
@@ -38,6 +39,7 @@ let rec print_type (t : ty) =
       print_type t2;
       print_string ")"
 
+(* Print lambda term on the standard output *)
 let rec print_lam (l : lam) =
   match l with
   | Abstraction (v, t, l') ->
@@ -95,6 +97,7 @@ let rec print_lam (l : lam) =
       print_lam n';
       print_string ")"
 
+(* Beta-reduction loop, printing at every reduction until we reach normal form or maximum step count *)
 let rec reduce_aux (s : int) (t : lam) =
   print_lam t;
   print_newline ();
@@ -102,8 +105,10 @@ let rec reduce_aux (s : int) (t : lam) =
     print_endline "[reduction stopped after 1000 steps: possible divergence]"
   else match betastep t with Some next -> reduce_aux (s - 1) next | None -> ()
 
+(* Launch the beta-reduction loop with maximum 1000 steps *)
 let reduce (t : lam) = reduce_aux 1000 t
 
+(* Print a tactic on the standard output *)
 let print_tactic (t : tactic) =
   (match t with
   | Goal t ->
@@ -133,6 +138,7 @@ let print_tactic (t : tactic) =
   | Right -> print_string "right");
   print_string "."
 
+(* Print a list of tactics on the standard output *)
 let print_tactics (ts : tactic list) =
   List.iter
     (fun t ->
@@ -141,6 +147,7 @@ let print_tactics (ts : tactic list) =
     ts;
   print_newline ()
 
+(* Print the current subgoals on the standard output *)
 let print_subgoal (sgs : subgoals) =
   match sgs with
   | [] ->
