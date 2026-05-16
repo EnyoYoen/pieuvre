@@ -20,6 +20,7 @@ type proof =
 
 (* An hypothesis name corresponds to a type and a variable in the proof *)
 type hyp = (string * (ty * string)) list
+
 (* A subgoal is a ref to a Hole, a goal type we want to prove, and a list of hypotheses *)
 type subgoal = proof ref * ty * hyp
 type subgoals = subgoal list

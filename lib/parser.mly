@@ -26,7 +26,7 @@ open Tactic
 %type <Tactic.tactic list> proof
 %type <Tactic.tactic> tactic
                                                       
-%%                                                                            
+%%
 
 reduce:
   e=term DOT EOF { e }

@@ -1,15 +1,40 @@
 exception TypeError (* Error during type inference / checking *)
-exception IncompleteProof (* During proof to term conversion, if we encounter a hole in the proof *)
-exception ProofNotFinished (* When a Qed tactic is encountered and there are still active subgoals *)
-exception NoGoal (* When a tactic other than Qed and there is no active subgoal *)
+exception IncompleteProof
+(* During proof to term conversion, if we encounter a hole in the proof *)
+
+exception ProofNotFinished
+(* When a Qed tactic is encountered and there are still active subgoals *)
+
+exception
+  NoGoal (* When a tactic other than Qed and there is no active subgoal *)
+
 exception ShouldNotHappen (* Should not happen :( *)
-exception HypothesisNotFound (* In a tactic using a provided hypothesis name, raised when it is not found in the environment *)
-exception HypothesisMismatch (* The hypothesis given to the tactic doesn't match the subgoal *)
-exception TermMismatch (* The term used in an exact tactic doesn't match the subgoal *)
-exception IntroOnNonImplication (* Trying to use intro / intros when the subgoal is not an implication *)
-exception HypothesisExists (* In an intro / intros tactic, the given name is already in the environment *)
-exception IncorrectProof (* During final checking, if the proof typecheck fail (should not happen) *)
-exception HypothesisNotImplication (* Trying to use apply tactic with a given hypothesis that is not an implication *)
-exception HypothesisNotConjunction (* Trying to use split tactic with a given hypothesis that is not a conjunction *)
-exception HypothesisNotDisjunction (* Trying to use left / right tactic with a given hypothesis that is not a disjunction *)
-exception NotDestructable (* Trying to use destruct tactic on a non-destructable subgoal *)
+exception HypothesisNotFound
+(* In a tactic using a provided hypothesis name, raised when it is not found in the environment *)
+
+exception HypothesisMismatch
+(* The hypothesis given to the tactic doesn't match the subgoal *)
+
+exception
+  TermMismatch (* The term used in an exact tactic doesn't match the subgoal *)
+
+exception IntroOnNonImplication
+(* Trying to use intro / intros when the subgoal is not an implication *)
+
+exception HypothesisExists
+(* In an intro / intros tactic, the given name is already in the environment *)
+
+exception IncorrectProof
+(* During final checking, if the proof typecheck fail (should not happen) *)
+
+exception HypothesisNotImplication
+(* Trying to use apply tactic with a given hypothesis that is not an implication *)
+
+exception HypothesisNotConjunction
+(* Trying to use split tactic with a given hypothesis that is not a conjunction *)
+
+exception HypothesisNotDisjunction
+(* Trying to use left / right tactic with a given hypothesis that is not a disjunction *)
+
+exception NotDestructable
+(* Trying to use destruct tactic on a non-destructable subgoal *)
