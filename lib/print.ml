@@ -169,3 +169,62 @@ let print_subgoal (sgs : subgoals) =
       print_type goal;
       print_newline ();
       print_newline ()
+
+let rec print_proof (p : proof) =
+  match p with
+  | Abstraction (v, t, l') ->
+      print_string ("fun (" ^ v ^ " : ");
+      print_type t;
+      print_string ") => ";
+      print_proof !l'
+  | Application (l1, l2) ->
+      print_string "(";
+      print_proof !l1;
+      print_string ") (";
+      print_proof !l2;
+      print_string ")"
+  | Variable v -> print_string v
+  | ExFalso (l, t) ->
+      print_string "exf(";
+      print_proof !l;
+      print_string " : ";
+      print_type t;
+      print_string ")"
+  | Admit -> print_string "admit"
+  | True -> print_string "I"
+  | Uple (l1, l2) ->
+      print_string "(";
+      print_proof !l1;
+      print_string ", ";
+      print_proof !l2;
+      print_string ")"
+  | First l' ->
+      print_string "fst(";
+      print_proof !l';
+      print_string ")"
+  | Second l' ->
+      print_string "snd(";
+      print_proof !l';
+      print_string ")"
+  | Left (l', t) ->
+      print_string "ig(";
+      print_proof !l';
+      print_string ", ";
+      print_type t;
+      print_string ")"
+  | Right (l', t) ->
+      print_string "id(";
+      print_proof !l';
+      print_string ", ";
+      print_type t;
+      print_string ")"
+  | Case (m, n, n') ->
+      print_string "case(";
+      print_proof !m;
+      print_string ", ";
+      print_proof !n;
+      print_string ", ";
+      print_proof !n';
+      print_string ")"
+  | Hole -> print_string "[?]";
+  print_newline ()

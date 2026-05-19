@@ -222,7 +222,7 @@ let process_right (sg : subgoal) =
       [ (proof_right, t2, hyps) ]
   | _ -> raise HypothesisNotDisjunction
 
-let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
+let process_tactic (t : tactic) (sg : subgoal) (env : gam) (p : proof ref) =
   match t with
   | Exact h ->
       process_exact sg h;
@@ -267,12 +267,11 @@ let process_tactic (t : tactic) (sg : subgoal) (env : gam) =
       let sgs = process_right sg in
       (false, sgs, env)
   | ShowProof ->
-      let proof, _, _ = sg in
-      print_current_proof proof;
-      (false, [], env)
+      print_proof !p;
+      (false, [sg], env)
   | _ -> raise ShouldNotHappen
 
-let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
+let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) (p : proof ref) =
   match tactics with
   | [] -> (env, [])
   | Qed :: tl -> if sgs <> [] then raise ProofNotFinished else (env, tl)
@@ -280,11 +279,11 @@ let rec process_until_qed (tactics : tactic list) (sgs : subgoals) (env : gam) =
       match sgs with
       | [] -> raise NoGoal
       | sg :: sgsr ->
-          let b, sgs', env' = process_tactic t sg env in
+          let b, sgs', env' = process_tactic t sg env p in
           let remaining = sgs' @ sgsr in
           if remaining <> [] then print_subgoal remaining;
           if b && remaining <> [] then raise ProofNotFinished
-          else process_until_qed tl remaining env')
+          else process_until_qed tl remaining env' p)
 
 let process_proof (tactics : tactic list) =
   match tactics with
@@ -295,7 +294,7 @@ let process_proof (tactics : tactic list) =
           let proof = ref Hole in
           let subgoal = [ (proof, goal, []) ] in
           print_subgoal subgoal;
-          let e, remaining = process_until_qed tl subgoal [] in
+          let e, remaining = process_until_qed tl subgoal [] proof in
           let term = proof_to_term !proof in
           if typecheck e term goal then (
             print_string "Proof successful! Term: ";
@@ -313,7 +312,7 @@ let rec process_proofs (tl : tactic list) =
       let remaining = process_proof tl in
       process_proofs remaining
 
-type interactive_session = proof ref option * subgoals * gam * ty option
+type interactive_session = proof ref option * subgoals * gam * ty option * proof ref option
 
 type interactive_step =
   | StepContinue of interactive_session * subgoals option
@@ -322,7 +321,7 @@ type interactive_step =
 
 let process_interactive_tactic (session : interactive_session) (t : tactic) :
     interactive_step =
-  let proof, sgs, env, goal = session in
+  let proof, sgs, env, goal, root = session in
   try
     match t with
     | Goal g -> (
@@ -331,7 +330,7 @@ let process_interactive_tactic (session : interactive_session) (t : tactic) :
         | None ->
             let new_proof = ref Hole in
             let new_sgs = [ (new_proof, g, []) ] in
-            StepContinue ((Some new_proof, new_sgs, env, Some g), Some new_sgs))
+            StepContinue ((Some new_proof, new_sgs, env, Some g, Some new_proof), Some new_sgs))
     | Qed -> (
         match proof with
         | None -> StepError "No proof in progress."
@@ -346,17 +345,14 @@ let process_interactive_tactic (session : interactive_session) (t : tactic) :
                   else
                     StepError "Typecheck of the final term failed: pieuvre bug."
             ))
-    | ShowProof -> (
-        match proof with
-        | None -> StepError "No proof in progress."
-        | Some proof ->
-            print_current_proof proof;
-            StepContinue (session, None))
     | _ -> (
         match sgs with
         | [] -> StepError "No goal. Start with 'Goal <goal>.' ."
         | sg :: r ->
-            let _, new_sgs, new_env = process_tactic t sg env in
-            let remaining = new_sgs @ r in
-            StepContinue ((proof, remaining, new_env, goal), Some remaining))
+            match root with
+            | None -> StepError "Internal error: root is None while there are subgoals."
+            | Some rt ->
+              let _, new_sgs, new_env = process_tactic t sg env rt in
+              let remaining = new_sgs @ r in
+              StepContinue ((proof, remaining, new_env, goal, root), Some remaining))
   with e -> StepError (Printexc.to_string e)

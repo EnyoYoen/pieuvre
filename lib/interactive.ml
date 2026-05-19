@@ -31,4 +31,4 @@ let rec repl (lexbuf : Lexing.lexbuf) (session : interactive_session) =
 (* Start the REPL *)
 let run_interactive (lexbuf : Lexing.lexbuf) =
   Printf.printf "Enter tactics ending with a dot. Type 'Qed.' to finish.\n\n%!";
-  repl lexbuf (None, [], [], None)
+    repl lexbuf (None, [], [], None, None)
