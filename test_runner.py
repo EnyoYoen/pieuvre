@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import subprocess
 import sys
 from pathlib import Path
@@ -25,18 +23,18 @@ def run_tests():
             )
             
             if result.returncode == 0:
-                print(f"✓ {proof_file.name}")
+                print(f"V {proof_file.name}")
                 passed += 1
             else:
-                print(f"✗ {proof_file.name}")
+                print(f"X {proof_file.name}")
                 if result.stderr:
                     print(f"  Error: {result.stderr.strip()}")
                 failed += 1
         except subprocess.TimeoutExpired:
-            print(f"✗ {proof_file.name} (timeout)")
+            print(f"X {proof_file.name} (timeout)")
             failed += 1
         except Exception as e:
-            print(f"✗ {proof_file.name} ({e})")
+            print(f"X {proof_file.name} ({e})")
             failed += 1
     
     print(f"\n{passed}/{passed + failed} tests passed")

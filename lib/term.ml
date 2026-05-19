@@ -51,11 +51,67 @@ let rec alpha_aux (env : alpha_env) (t1 : lam) (t2 : lam) =
 (* Alpha-conversion function *)
 let alpha (l1 : lam) (l2 : lam) = alpha_aux [] l1 l2
 
-(* We replace recursively the variable v by the term s in the term l *)
+(* Counter for generating fresh variables *)
+let fresh_var_counter = ref 0
+
+let fresh_var () =
+  let i = !fresh_var_counter in
+  fresh_var_counter := i + 1;
+  "_v" ^ string_of_int i
+
+(* Compute the set of free variables in a term *)
+let rec free_vars (l : lam) =
+  match l with
+  | Variable v -> [ v ]
+  | Abstraction (p, _, b) -> List.filter (fun x -> x <> p) (free_vars b)
+  | Application (l1, l2) -> free_vars l1 @ free_vars l2
+  | ExFalso (l', _) -> free_vars l'
+  | Admit -> []
+  | True -> []
+  | Uple (l1, l2) -> free_vars l1 @ free_vars l2
+  | First l' -> free_vars l'
+  | Second l' -> free_vars l'
+  | Left (l', _) -> free_vars l'
+  | Right (l', _) -> free_vars l'
+  | Case (m, n, n') -> free_vars m @ free_vars n @ free_vars n'
+
+(* Rename a variable p to p' throughout a term *)
+let rec rename_var (l : lam) (p : string) (p' : string) =
+  match l with
+  | Variable v -> if v = p then Variable p' else Variable v
+  | Abstraction (a, t, b) ->
+      if a = p then Abstraction (a, t, b)
+      else Abstraction (a, t, rename_var b p p')
+  | Application (l1, l2) -> Application (rename_var l1 p p', rename_var l2 p p')
+  | ExFalso (l', t) -> ExFalso (rename_var l' p p', t)
+  | Admit -> Admit
+  | True -> True
+  | Uple (l1, l2) -> Uple (rename_var l1 p p', rename_var l2 p p')
+  | First l' -> First (rename_var l' p p')
+  | Second l' -> Second (rename_var l' p p')
+  | Left (l', t) -> Left (rename_var l' p p', t)
+  | Right (l', t) -> Right (rename_var l' p p', t)
+  | Case (m, n, n') ->
+      Case (rename_var m p p', rename_var n p p', rename_var n' p p')
+
+(* We replace recursively the variable v by the term s in the term l.
+   To avoid variable capture, when substituting under an abstraction,
+   if the bound variable appears free in the substitution term,
+   we rename the bound variable to a fresh one first. *)
 let rec subst (l : lam) (v : string) (s : lam) =
   match l with
   | Abstraction (p, t, b) ->
-      if p = v then Abstraction (p, t, b) else Abstraction (p, t, subst b v s)
+      if p = v then
+        (* The variable we want to substitute is now bound, so stop *)
+        Abstraction (p, t, b)
+      else if List.mem p (free_vars s) then
+        (* Variable capture risk, we rename p to a fresh variable *)
+        let p' = fresh_var () in
+        let b' = rename_var b p p' in
+        Abstraction (p', t, subst b' v s)
+      else
+        (* Safe to substitute in the body *)
+        Abstraction (p, t, subst b v s)
   | Application (l1, l2) -> Application (subst l1 v s, subst l2 v s)
   | Variable var -> if var = v then s else Variable var
   | ExFalso (l', ty) -> ExFalso (subst l' v s, ty)
